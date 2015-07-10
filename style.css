@@ -1,23 +1,23 @@
 /* p5.js fonts */
 
 @font-face {
-    font-family: 'AvenirNextLTW01-Medium';
-    src: url('../fonts/AvenirNextLTW01-Medium.eot');
-    src: url('../fonts/AvenirNextLTW01-Medium.eot') format('eot'),
-         url('../fonts/AvenirNextLTW01-Medium.woff') format('woff'),
-         url('../fonts/AvenirNextLTW01-Medium.ttf') format('truetype'),
-         url('../fonts/AvenirNextLTW01-Medium.svg') format('svg');
-    font-weight: normal;
-    font-style: normal;
-    }
+  font-family: 'AvenirNextLTW01-Medium';
+  src: url('fonts/AvenirNextLTW01-Medium.eot');
+  src: url('fonts/AvenirNextLTW01-Medium.eot') format('eot'),
+       url('fonts/AvenirNextLTW01-Medium.woff') format('woff'),
+       url('fonts/AvenirNextLTW01-Medium.ttf') format('truetype'),
+       url('fonts/AvenirNextLTW01-Medium.svg') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
 
 @font-face {
-    font-family: 'inconsolatamedium';
-    src: url('../fonts/inconsolata.eot');
-    src: url('../fonts/inconsolata.eot?') format('embedded-opentype'),
-         url('../fonts/inconsolata.woff') format('woff'),
-         url('../fonts/inconsolata.ttf') format('truetype'),
-         url('../fonts/inconsolata.svg') format('svg');
-    font-weight: normal;
-    font-style: normal;
+  font-family: 'inconsolatamedium';
+  src: url('fonts/inconsolata.eot');
+  src: url('fonts/inconsolata.eot?') format('embedded-opentype'),
+       url('fonts/inconsolata.woff') format('woff'),
+       url('fonts/inconsolata.ttf') format('truetype'),
+       url('fonts/inconsolata.svg') format('svg');
+  font-weight: normal;
+  font-style: normal;
 }
