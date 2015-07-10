@@ -1,5 +1,6 @@
+// your sketch goes here!
+
 var s = function( p ) {
-  // your sketch goes here!
 
   p.setup = function() {
     // put setup code here
@@ -8,6 +9,7 @@ var s = function( p ) {
   };
 
   p.draw = function() {
+    // put draw code here
     
   };
 };
