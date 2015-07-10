@@ -1,10 +1,13 @@
-// your sketch goes here!
+var s = function( p ) {
 
-function setup() {
-  // put setup code here
 
-}
+  p.setup = function() {
+    
+  };
 
-function draw() {
-  
-}
+  p.draw = function() {
+    
+  };
+};
+
+var myp5 = new p5(s);
