@@ -10,7 +10,10 @@ var s = function( p ) {
 
   p.draw = function() {
     // put draw code here
-    
+    p.textFont("AvenirNextLTW01-Medium");
+    p.textSize(32);
+    p.fill(0, 102, 153);
+    p.text("Better!", p.windowWidth / 4, p.windowHeight / 4);    
   };
 };
 
