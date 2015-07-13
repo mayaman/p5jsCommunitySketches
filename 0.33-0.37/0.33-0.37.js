@@ -10,7 +10,7 @@ var s = function( p ) {
 
   p.draw = function() {
     // put draw code here
-    
+    line(0,0,width, height);
   };
 };
 
