@@ -29,10 +29,6 @@
  Processing sketch. You know, the one that looks like:
  http://studio.sketchpad.cc/sp/pad/view/ro.9sfQKA0T6QIW-/rev.10
 
-
- Particles should have wobbly soft bodies, like so:
- https://processing.org/examples/softbody.html
-
 */
 
 var s = function( p ) {
@@ -44,9 +40,6 @@ var s = function( p ) {
   var cx, cy, cradius;
 
   var particleRadius;
-
-  var askedEveryone;
-
 
   p.setup = function() {
     p.createCanvas(p.windowWidth, p.windowHeight);
@@ -62,7 +55,6 @@ var s = function( p ) {
     for (var i = 0; i < 50; i++) {
       particles.push(new Drifter());
     };
-    askedEveryone = false;
 
     p5Asterisk = new Asterisk();
     p.imageMode(p.CENTER);
@@ -86,6 +78,8 @@ var s = function( p ) {
     };
 
     // Draw the friendship network
+    // Match color of asterisk
+    p.stroke(237, 34, 93, 128);
     for (var i = particles.length - 1; i >= 0; i--) {
       particles[i].drawNetwork();
     };
@@ -116,13 +110,6 @@ var s = function( p ) {
     this.isFollowed = false;
     this.isNotAvailable = false;
 
-    // colour
-    this.r = p.random(255);
-    this.g = p.random(255);
-    this.b = p.random(255);
-    this.alpha = 0;
-    this.talpha = 0;
-
     // sets first position within a circle
     // make sure cx, cy and cradius are set before creating a Drifter!
     var t = p.random(p.TAU);
@@ -138,59 +125,21 @@ var s = function( p ) {
     this.dx = Math.sin(this.theta) * this.v;
     this.dy = Math.cos(this.theta) * this.v;
 
-    // make it a random squiggle
-    this.vertices = new Float32Array(14);
-    for (var i = 0; i < this.vertices.length; i += 2) {
-      // re-using t & r
-      t = p.TAU* (p.random(2) + i) / this.vertices.length;
-      r = p.random(1/8, 1) * particleRadius;
-      this.vertices[i]     = r * Math.sin(t);
-      this.vertices[i + 1] = r * Math.cos(t);
-    };
-
-    this.tvertices = new Float32Array(this.vertices.length);
-    for (var i = 0; i < this.tvertices.length; i += 2) {
-      // re-using t & r
-      t = p.TAU * (p.random(2) + i) / this.tvertices.length;
-      r = p.random(5, 30);
-      this.tvertices[i]     = r * Math.sin(t);
-      this.tvertices[i + 1] = r * Math.cos(t);
-    };
-
-    this.verticeCounter = p.random(10, 20);
+    this.squiggle = new Squiggle(2);
 
     this.friends = new Array(0);
+    this.maxFriends = 2;
 
     this.nextFriend = null;
   };
 
   Drifter.prototype.draw = function() {
-    if (this.isNotAvailable){
-      this.talpha = 16;
-    } else if (this.isBefriended){
-      this.talpha = 255;
-    } else {
-      this.talpha = 128;
-    }
-    this.alpha = this.alpha * 0.9 + this.talpha * 0.1;
-    p.fill(this.r, this.g, this.b, this.alpha);
-    
-    p.noStroke();
-    p.beginShape();
-    for (var i = 0; i < this.vertices.length; i += 2) {
-      p.curveVertex(this.x + this.vertices[i], this.y + this.vertices[i+1]);
-    };
-    p.curveVertex(this.x + this.vertices[0], this.y + this.vertices[1]);  	
-    p.curveVertex(this.x + this.vertices[2], this.y + this.vertices[3]);  	
-    p.curveVertex(this.x + this.vertices[4], this.y + this.vertices[5]); 	
-    p.endShape();
-    
+    this.squiggle.draw(this.x, this.y);
     return this;
   };
 
   Drifter.prototype.drawNetwork = function() {
     if (this.friends.length > 0){
-      p.stroke(this.r, this.g, this.b, 128);
       for (var i = this.friends.length - 1; i >= 0; i--) {
         p.line(this.x, this.y, this.friends[i].x, this.friends[i].y);
       };
@@ -204,7 +153,7 @@ var s = function( p ) {
     } else {
       this.drift();
     }
-    this.squiggleVertices();
+     this.squiggle.move();
     return this;
   }
 
@@ -259,48 +208,37 @@ var s = function( p ) {
     return this;
   }
 
-  // Makes it look like they're talking :)
-  Drifter.prototype.squiggleVertices = function() {
-    
-    var factor = 1/8;
-    if (this.isNotAvailable) {
-    	factor = 1/32;
-    }
-    for (var i = this.vertices.length - 1; i >= 0; i -= 1) {
-      this.vertices[i] = (1 - factor)*this.vertices[i] + factor*this.tvertices[i];
-    }
-    this.verticeCounter -= 1;
-    if (this.verticeCounter < 0){
-      for (var i = 0; i < this.tvertices.length; i += 2) {
-        var t = p.TAU* (p.random(2) + i) / this.tvertices.length;
-        var r = p.random(1/factor, 5/factor);
-        this.tvertices[i]     = r * Math.sin(t);
-        this.tvertices[i + 1] = r * Math.cos(t);
-      };
-     this.verticeCounter = p.random(1/factor, 4/factor);
-    }
-  }
-
   Drifter.prototype.befriend = function(){
   	// the more friends you have, the harder it is to make new ones
   	// Gives a more "even" network
-    if (p.random(1) < 1/(this.friends.length + 2)){
+
+    if (p.random(1) < 3/(this.friends.length + 5)){
       
       if (!this.nextFriend.isBefriended){
         this.nextFriend.isBefriended = true;
+        this.nextFriend.squiggle.tfactor = 2;
+        this.nextFriend.squiggle.talpha = 255;
         this.nextFriend.nextTarget();
       }
 
-      this.listFriend(this.nextFriend);
-      p5Asterisk.listFriend(this.nextFriend);
+      // Connect to new friend
+      this.addFriend(this.nextFriend);
+
+      // Connect new friend to the p5 Asterisk
+      p5Asterisk.addFriend(this.nextFriend);
 
     } else if (!this.nextFriend.isBefriended){
       this.nextFriend.isNotAvailable = true;
+      // Squiggle slower if not available,
+      // be bigger in size, and nearly transparant
+      this.nextFriend.squiggle.tfactor = 8;
+      this.nextFriend.squiggle.talpha = 16;
     }
+
     this.nextTarget();
   }
 
-  Drifter.prototype.listFriend = function(newFriend) {
+  Drifter.prototype.addFriend = function(newFriend) {
     var alreadyFriends = false;
     for (var i = 0; i < this.friends.length; i++){
      alreadyFriends = alreadyFriends || this.friends[i] == newFriend;
@@ -316,28 +254,24 @@ var s = function( p ) {
   }
 
   Drifter.prototype.findTarget = function() {
-    // Filter out the particles who are 
-    // not available or are being followed
-    // and check if there are still free particles
-    var potentialFriends = new Array(0);
-    var befriendedParticles = 0;
-    for (var i = particles.length - 1; i >= 0; i--) {
-      if (!(particles[i].isFollowed || particles[i].isNotAvailable)){
-        potentialFriends.push(particles[i]);
-        if (particles[i].isBefriended) {  
-          befriendedParticles++;
+    this.nextFriend = null;
+  	if(this.friends.length < this.maxFriends){
+      // Filter out the particles who are 
+      // not available or are being followed
+      // and check if there are still free particles
+      var potentialFriends = new Array(0);
+      for (var i = particles.length - 1; i >= 0; i--) {
+        if (!(particles[i].isBefriended || particles[i].isFollowed || particles[i].isNotAvailable)){
+          potentialFriends.push(particles[i]);
         }
+      };
+      
+      if (potentialFriends.length > 0){
+        var index = Math.floor( p.random(potentialFriends.length) );
+        this.nextFriend = potentialFriends[index];
+        this.nextFriend.isFollowed = true;
+        this.nextFriend.isDrifting = true;
       }
-    };
-    askedEveryone = befriendedParticles == potentialFriends.length
- 
-    if (!askedEveryone && potentialFriends.length > 0){
-     var index = Math.floor( p.random(potentialFriends.length) );
-     this.nextFriend = potentialFriends[index];
-     this.nextFriend.isFollowed = true;
-     this.nextFriend.isDrifting = true;
-    } else {
-     this.nextFriend = null;
     }
 
     return this;
@@ -358,7 +292,6 @@ var s = function( p ) {
   	var dy = this.y - that.y;
   	return dx*dx + dy*dy;
   }
-
   // ========== ASTERISK ==========
   // Inherits from Drifter
   // Is the first to look for friends
@@ -367,12 +300,11 @@ var s = function( p ) {
     Drifter.call(this);
     // Image and matching colors
     this.img = p.loadImage("p5-asterisk.png");
-    this.r = 237;
-    this.g = 34;
-    this.b = 93;
+
     //p5 is always looking for friends!
     this.isBefriended = true;
     this.isDrifting = true;
+    this.maxFriends = particles.length;
     this.nextTarget();
   }
 
@@ -380,15 +312,126 @@ var s = function( p ) {
 
   Asterisk.prototype.constructor = Asterisk;
 
-
   Asterisk.prototype.draw = function(){
     p.image(this.img, this.x, this.y, particleRadius*2, particleRadius*2);
   }
 
-  Asterisk.prototype.drift = function() {
-  	this.x = 0.95 * this.x + 0.05 * cx;
-  	this.y = 0.95 * this.y + 0.05 * cy;
+  Asterisk.prototype.move = function() {
+  	this.follow();
   }
+
+  Asterisk.prototype.findTarget = function() {
+    this.nextFriend = null;
+  	if(this.friends.length < this.maxFriends){
+      // Filter out the particles who are 
+      // not available or are being followed
+      // and check if there are still free particles
+      var potentialFriends = new Array(0);
+      for (var i = particles.length - 1; i >= 0; i--) {
+        if (!(particles[i].isFollowed || particles[i].isNotAvailable)){
+          potentialFriends.push(particles[i]);
+        }
+      };
+      
+      if (potentialFriends.length > 0){
+        var index = Math.floor( p.random(potentialFriends.length) );
+        this.nextFriend = potentialFriends[index];
+        this.nextFriend.isFollowed = true;
+        this.nextFriend.isDrifting = true;
+      }
+    }
+
+    return this;
+  }
+
+  // ========== SQUIGGLE ==========
+  // Squiggle shape - used by drifter, refactored into separate class
+
+  var Squiggle = function (_factor) {
+  	this.factor = _factor;
+  	this.tfactor = _factor;
+  	this.verticeTimer = p.random(2*this.factor, 5*this.factor);
+
+    // make it a random squiggle
+    var points = 2 * Math.floor( p.random(7, 10));
+    this.vertices = new Float32Array(points);
+    this.tvertices = new Float32Array(this.vertices.length);
+    this.randomiseVertices();
+    this.randomiseTVertices();
+
+    // squiggle's colour
+    this.r = p.random(64, 255);
+    this.g = p.random(64, 255);
+    this.b = p.random(64, 255);
+    //ensure that one channel is darker,
+    //for visibility reasons
+    var t = p.random(3);
+    if (t > 2){
+      this.r = p.random(128);
+    } else if (t > 1) {
+      this.g = p.random(128);
+    } else {
+      this.b = p.random(128);
+    }
+    this.alpha = 0;
+    this.talpha = 64;
+  }
+
+  Squiggle.prototype.randomiseVertices = function () {
+    for (var i = 0; i < this.vertices.length; i += 2) {
+      var t = p.TAU* (p.random(2) + i) / this.vertices.length;
+      var r =  p.random(0.1, 1);
+      this.vertices[i]     = r*Math.sin(t);
+      this.vertices[i + 1] = r*Math.cos(t);
+    };
+  }
+
+  Squiggle.prototype.randomiseTVertices = function () {
+    for (var i = 0; i < this.tvertices.length; i += 2) {
+      var t = p.TAU* (p.random(2) + i) / this.tvertices.length;
+      var r =  p.random(0.1, 1);
+      this.tvertices[i]     = r*Math.sin(t);
+      this.tvertices[i + 1] = r*Math.cos(t);
+    };
+  }
+
+  // Makes it look like they're talking :)
+  Squiggle.prototype.move = function() {
+  	this.factor = this.factor * (15/16) + this.tfactor * (1/16);
+    
+    this.verticeTimer -= 1;
+
+    if (this.verticeTimer < 0){
+      this.randomiseTVertices();
+      this.verticeTimer = p.random(4*this.factor, 10*this.factor);
+    }
+    else {
+      for (var i = this.vertices.length - 1; i >= 0; i -= 1) {
+      	var speed = 0.25 / this.factor 
+        this.vertices[i] = (1 - speed)*this.vertices[i] + speed*this.tvertices[i];
+      }
+    }
+  }
+
+  Squiggle.prototype.draw = function(x, y) {
+
+    this.alpha = this.alpha * 0.9 + this.talpha * 0.1;
+    p.fill(this.r, this.g, this.b, this.alpha);
+    p.noStroke();
+
+    p.beginShape();
+
+    var radius = particleRadius * this.factor;
+    for (var i = 0; i < this.vertices.length; i += 2) {
+      p.curveVertex(x + radius * this.vertices[i], y + radius * this.vertices[i+1]);
+    };
+    p.curveVertex(x + radius * this.vertices[0], y + radius * this.vertices[1]);
+    p.curveVertex(x + radius * this.vertices[2], y + radius * this.vertices[3]);
+    p.curveVertex(x + radius * this.vertices[4], y + radius * this.vertices[5]);
+
+    p.endShape();
+  }
+
 
 };
 

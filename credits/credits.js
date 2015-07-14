@@ -1,3 +1,5 @@
+// sketch to play during credits
+
 var s = function( p ) {
 
 
