@@ -3,6 +3,7 @@
 var s = function( p ) {
 
   p.scenes = [];
+  p.p5Logo = null;
 
   // "Class" representing scene one, state (elements and variables) and
   // animation methods
@@ -17,6 +18,10 @@ var s = function( p ) {
       robot1WheelAngle : 0,
       robot1WheelRotation : p.PI / 9,
       robot1CableAnimation: {
+        x : 0,
+        y : 0
+      },
+      robot1Cable2Animation: {
         x : 0,
         y : 0
       },
@@ -62,6 +67,7 @@ var s = function( p ) {
       var angle = p.atan(m);
       p.line(cableX, cableY, this.sW / 4, this.sH / 40);
       p.stroke(255);
+      
       var cableXb = cableX + this.elementState.robot1CableAnimation.x;
       var cableYb = cableY - this.elementState.robot1CableAnimation.y;
        
@@ -76,7 +82,27 @@ var s = function( p ) {
         this.elementState.robot1CableAnimation.x = 0;
         this.elementState.robot1CableAnimation.y = 0;
       }
-
+      
+      // Robot 1 Cable 2
+      p.stroke(0);
+      var cable2X = (this.sW / 3);
+      var cable2Y = (this.sH / 40);
+      p.line(cable2X, cable2Y, cable2X, cableY + rH);
+      p.stroke(255);
+      var cable2Yb = cableY + rH - this.elementState.robot1Cable2Animation.y;
+      
+      p.line(cable2X, cable2Yb, cable2X, cable2Yb - 40);
+      
+      // loop animation
+      if (cable2Yb >= cable2Y) {
+  	    this.elementState.robot1Cable2Animation.y += 40;
+      } else {
+      
+        this.elementState.robot1Cable2Animation.y = 0;
+      }
+      
+      // p5 logo!
+      //p.image(p.p5Logo, cable2X, cableY + rH);
       
       // Robot 1 Wheel Rotation
       p.stroke(0);
@@ -111,6 +137,11 @@ var s = function( p ) {
     
   };
 
+  p.preload = function () {
+    
+    //p.p5Logo = p.loadImage("../p5-asterisk.png");
+    p.imageMode(p.CENTER);
+  };
 
   p.setup = function() {
     // put setup code here
