@@ -23,7 +23,9 @@ var s = function( p ) {
       },
       robot1Cable2Animation: {
         x : 0,
-        y : 0
+        y : 0,
+        y2 : 10,
+        adv : 5
       },
       robot1Shake : {
       	x : 5,
@@ -87,9 +89,11 @@ var s = function( p ) {
       p.stroke(0);
       var cable2X = (this.sW / 3);
       var cable2Y = (this.sH / 40);
-      p.line(cable2X, cable2Y, cable2X, cableY + rH);
+      
+      // The cable and the animation also "rise"
+      p.line(cable2X, cable2Y, cable2X, cableY + rH - this.elementState.robot1Cable2Animation.y2);
       p.stroke(255);
-      var cable2Yb = cableY + rH - this.elementState.robot1Cable2Animation.y;
+      var cable2Yb = cableY + rH - this.elementState.robot1Cable2Animation.y - this.elementState.robot1Cable2Animation.y2;
       
       p.line(cable2X, cable2Yb, cable2X, cable2Yb - 40);
       
@@ -102,7 +106,12 @@ var s = function( p ) {
       }
       
       // p5 logo!
-      //p.image(p.p5Logo, cable2X, cableY + rH);
+      p.image(p.p5Logo, cable2X, cableY + rH - this.elementState.robot1Cable2Animation.y2, this.sH / 5, this.sH / 5);
+      
+      // Test if the cable must keep rising
+      if ((cableY + rH - this.elementState.robot1Cable2Animation.y2) > (this.sH / 8)) {
+        this.elementState.robot1Cable2Animation.y2 += this.elementState.robot1Cable2Animation.adv;
+      }
       
       // Robot 1 Wheel Rotation
       p.stroke(0);
@@ -139,7 +148,7 @@ var s = function( p ) {
 
   p.preload = function () {
     
-    //p.p5Logo = p.loadImage("../p5-asterisk.png");
+    p.p5Logo = p.loadImage("../p5-asterisk.png");
     p.imageMode(p.CENTER);
   };
 
