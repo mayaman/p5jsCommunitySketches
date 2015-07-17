@@ -7,9 +7,8 @@ var s = function( p ) {
 
   // "Class" representing scene one, state (elements and variables) and
   // animation methods
-  p.sceneOne = function (w, h, dur) {
+  p.sceneOne = function (w, h) {
   
-    this.duration = dur;
     this.sW = w;
     this.sH = h;
     
@@ -35,7 +34,6 @@ var s = function( p ) {
   
     this.drawScene = function () {
       
-      p.frameRate(60);
       p.stroke(0);
       p.strokeWeight(3);
       p.noFill();
@@ -145,6 +143,47 @@ var s = function( p ) {
     };
     
   };
+  
+  
+  // This will be about "people" making "improvements"
+  p.sceneTwo = function (w, h) {
+  
+    this.sW = w;
+    this.sH = h;
+    
+    this.elementState = {
+      MAX_PEOPLE : 20,
+      people : [],
+      nFramesToAddPerson : 30
+    };
+  
+    this.drawScene = function () {
+      
+      p.stroke(0);
+      p.strokeWeight(2);
+      
+      // To draw each "person"
+      for (var i = 0; i < this.elementState.people.length; ++i) {
+        
+        p.fill(255, 0, 0);
+        p.ellipse(this.elementState.people[i].x, this.elementState.people[i].y, 50, 50);
+      }
+      
+      if (this.elementState.people.length > this.elementState.MAX_PEOPLE) {
+        this.elementState.people = [];
+      }
+      
+      // After certain quantity of frames, add another person
+      if (p.frameCount % this.elementState.nFramesToAddPerson == 0) {
+        
+        this.elementState.people.push({
+          x : p.random(this.sW / 2, (9 * this.sW) / 10),
+          y : p.random(this.sH / 10, (9 * this.sH) / 10),
+          color : p.color(p.random(0, 255), p.random(0, 255), p.random(0, 255))
+        });  
+      }
+    };
+  };
 
   p.preload = function () {
     
@@ -158,14 +197,17 @@ var s = function( p ) {
     p.background('#AFAFAF');
     
     // Adding scenes
-    p.scenes.push(new p.sceneOne(p.windowWidth, p.windowHeight, 4000));
-    //p.scenes.push(new p.sceneTwo());
+    p.scenes.push(new p.sceneOne(p.windowWidth, p.windowHeight));
+    p.scenes.push(new p.sceneTwo(p.windowWidth, p.windowHeight));
   };
 
   p.draw = function() {
+  
+    p.frameRate(60);
 
     p.background('#AFAFAF');
     p.scenes[0].drawScene();
+    p.scenes[1].drawScene();
   };
 };
 
