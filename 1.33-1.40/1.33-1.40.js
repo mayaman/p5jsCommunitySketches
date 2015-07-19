@@ -3,12 +3,12 @@
 var s = function( p ) {
 
   p.scenes = [];
+  p.p5Logo = null;
 
   // "Class" representing scene one, state (elements and variables) and
   // animation methods
-  p.sceneOne = function (w, h, dur) {
+  p.sceneOne = function (w, h) {
   
-    this.duration = dur;
     this.sW = w;
     this.sH = h;
     
@@ -20,6 +20,12 @@ var s = function( p ) {
         x : 0,
         y : 0
       },
+      robot1Cable2Animation: {
+        x : 0,
+        y : 0,
+        y2 : 10,
+        adv : 5
+      },
       robot1Shake : {
       	x : 5,
       	y : 5
@@ -28,7 +34,6 @@ var s = function( p ) {
   
     this.drawScene = function () {
       
-      p.frameRate(60);
       p.stroke(0);
       p.strokeWeight(3);
       p.noFill();
@@ -62,6 +67,7 @@ var s = function( p ) {
       var angle = p.atan(m);
       p.line(cableX, cableY, this.sW / 4, this.sH / 40);
       p.stroke(255);
+      
       var cableXb = cableX + this.elementState.robot1CableAnimation.x;
       var cableYb = cableY - this.elementState.robot1CableAnimation.y;
        
@@ -76,7 +82,34 @@ var s = function( p ) {
         this.elementState.robot1CableAnimation.x = 0;
         this.elementState.robot1CableAnimation.y = 0;
       }
-
+      
+      // Robot 1 Cable 2
+      p.stroke(0);
+      var cable2X = (this.sW / 3);
+      var cable2Y = (this.sH / 40);
+      
+      // The cable and the animation also "rise"
+      p.line(cable2X, cable2Y, cable2X, cableY + rH - this.elementState.robot1Cable2Animation.y2);
+      p.stroke(255);
+      var cable2Yb = cableY + rH - this.elementState.robot1Cable2Animation.y - this.elementState.robot1Cable2Animation.y2;
+      
+      p.line(cable2X, cable2Yb, cable2X, cable2Yb - 40);
+      
+      // loop animation
+      if (cable2Yb >= cable2Y) {
+  	    this.elementState.robot1Cable2Animation.y += 40;
+      } else {
+      
+        this.elementState.robot1Cable2Animation.y = 0;
+      }
+      
+      // p5 logo!
+      p.image(p.p5Logo, cable2X, cableY + rH - this.elementState.robot1Cable2Animation.y2, this.sH / 5, this.sH / 5);
+      
+      // Test if the cable must keep rising
+      if ((cableY + rH - this.elementState.robot1Cable2Animation.y2) > (this.sH / 8)) {
+        this.elementState.robot1Cable2Animation.y2 += this.elementState.robot1Cable2Animation.adv;
+      }
       
       // Robot 1 Wheel Rotation
       p.stroke(0);
@@ -110,7 +143,53 @@ var s = function( p ) {
     };
     
   };
+  
+  
+  // This will be about "people" making "improvements"
+  p.sceneTwo = function (w, h) {
+  
+    this.sW = w;
+    this.sH = h;
+    
+    this.elementState = {
+      MAX_PEOPLE : 20,
+      people : [],
+      nFramesToAddPerson : 30
+    };
+  
+    this.drawScene = function () {
+      
+      p.stroke(0);
+      p.strokeWeight(2);
+      
+      // To draw each "person"
+      for (var i = 0; i < this.elementState.people.length; ++i) {
+        
+        p.fill(255, 0, 0);
+        p.ellipse(this.elementState.people[i].x, this.elementState.people[i].y, 50, 50);
+      }
+      
+      if (this.elementState.people.length > this.elementState.MAX_PEOPLE) {
+        this.elementState.people = [];
+      }
+      
+      // After certain quantity of frames, add another person
+      if (p.frameCount % this.elementState.nFramesToAddPerson == 0) {
+        
+        this.elementState.people.push({
+          x : p.random(this.sW / 2, (9 * this.sW) / 10),
+          y : p.random(this.sH / 10, (9 * this.sH) / 10),
+          color : p.color(p.random(0, 255), p.random(0, 255), p.random(0, 255))
+        });  
+      }
+    };
+  };
 
+  p.preload = function () {
+    
+    p.p5Logo = p.loadImage("../p5-asterisk.png");
+    p.imageMode(p.CENTER);
+  };
 
   p.setup = function() {
     // put setup code here
@@ -118,14 +197,17 @@ var s = function( p ) {
     p.background('#AFAFAF');
     
     // Adding scenes
-    p.scenes.push(new p.sceneOne(p.windowWidth, p.windowHeight, 4000));
-    //p.scenes.push(new p.sceneTwo());
+    p.scenes.push(new p.sceneOne(p.windowWidth, p.windowHeight));
+    p.scenes.push(new p.sceneTwo(p.windowWidth, p.windowHeight));
   };
 
   p.draw = function() {
+  
+    p.frameRate(60);
 
     p.background('#AFAFAF');
     p.scenes[0].drawScene();
+    p.scenes[1].drawScene();
   };
 };
 
