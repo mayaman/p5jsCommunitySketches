@@ -10,15 +10,14 @@
  but we RECOGNIZE and ENCOURAGE INVOLVEMENT of all kinds."
 
 
- First idea: floating particles of various shapes and 
+ Current idea: floating particles of various shapes and 
  colours, represinting people of different backgrounds. 
- They all gently float around (and try to avoid the mouse
- cursor, to give some interactivity).
+ They all gently float around.
 
  One particle is the p5 asterisk. It "hunts" for 
  friends, moving from unvisited particle to unvisited
  particle. A particle may or may not join the network
- of friends (let's say 20% chance of joining). 
+ of friends (chance of joining determined by testing). 
 
  If it joins, it will become connected to the network.
  A line between itself and the particle that befriended
@@ -45,11 +44,11 @@ var s = function( p ) {
     p.createCanvas(p.windowWidth, p.windowHeight);
     p.background(255, 255, 255);
 
-    cx = p.width/4;
-    cy = p.height/2;
-    cradius = p.min(cx, cy)/2;
+    cx = (p.width/4 | 0);
+    cy = (p.height/2 | 0);
+    cradius = (p.min(cx, cy)/2 | 0);
 
-    particleRadius = p.min(p.width, p.height)/40;
+    particleRadius = (p.min(p.width, p.height)/40 | 0);
 
     particles = new Array(0);
     for (var i = 0; i < 50; i++) {
@@ -192,8 +191,8 @@ var s = function( p ) {
   Drifter.prototype.follow = function() {
     var dx, dy;
     if (this.nextFriend != null){
-      this.x = this.x * 0.95 + this.nextFriend.x * 0.05;
-      this.y = this.y * 0.95 + this.nextFriend.y * 0.05;
+      this.x = this.x * 0.9 + this.nextFriend.x * 0.1;
+      this.y = this.y * 0.9 + this.nextFriend.y * 0.1;
 
       dx = (this.x - this.nextFriend.x);
       dy = (this.y - this.nextFriend.y);
@@ -267,7 +266,7 @@ var s = function( p ) {
       };
       
       if (potentialFriends.length > 0){
-        var index = Math.floor( p.random(potentialFriends.length) );
+        var index = ( p.random(potentialFriends.length) | 0 );
         this.nextFriend = potentialFriends[index];
         this.nextFriend.isFollowed = true;
         this.nextFriend.isDrifting = true;
@@ -277,15 +276,15 @@ var s = function( p ) {
     return this;
   }
 
-  // Alternatively: spawn a new potential friend
-  Drifter.prototype.createTarget = function() {
-    if (particles.length < 50){
-      this.nextFriend = new Drifter();
-      particles.push(this.nextFriend);
-    } else {
-      this.nextFriend = null;
-    }
-  }
+  // //Alternatively: spawn a new potential friend
+  // Drifter.prototype.createTarget = function() {
+  //   if (particles.length < 50){
+  //     this.nextFriend = new Drifter();
+  //     particles.push(this.nextFriend);
+  //   } else {
+  //     this.nextFriend = null;
+  //   }
+  // }
 
   Drifter.prototype.sqDist = function(that){
   	var dx = this.x - that.x;
@@ -299,7 +298,7 @@ var s = function( p ) {
   var Asterisk = function () {
     Drifter.call(this);
     // Image and matching colors
-    this.img = p.loadImage("p5-asterisk.png");
+    this.img = p.loadImage("assets/p5-asterisk.png");
 
     //p5 is always looking for friends!
     this.isBefriended = true;
@@ -334,7 +333,7 @@ var s = function( p ) {
       };
       
       if (potentialFriends.length > 0){
-        var index = Math.floor( p.random(potentialFriends.length) );
+        var index = (p.random(potentialFriends.length) | 0);
         this.nextFriend = potentialFriends[index];
         this.nextFriend.isFollowed = true;
         this.nextFriend.isDrifting = true;
@@ -353,7 +352,7 @@ var s = function( p ) {
   	this.verticeTimer = p.random(2*this.factor, 5*this.factor);
 
     // make it a random squiggle
-    var points = 2 * Math.floor( p.random(7, 10));
+    var points = 2 * (p.random(7, 10) | 0);
     this.vertices = new Float32Array(points);
     this.tvertices = new Float32Array(this.vertices.length);
     this.randomiseVertices();
@@ -365,12 +364,15 @@ var s = function( p ) {
     this.b = p.random(64, 255);
     //ensure that one channel is darker,
     //for visibility reasons
-    var t = p.random(3);
-    if (t > 2){
+    var t = (p.random(3) | 0);
+    switch(t){
+      case 2:
       this.r = p.random(128);
-    } else if (t > 1) {
+      break;
+      case 1:
       this.g = p.random(128);
-    } else {
+      break;
+      case 0:
       this.b = p.random(128);
     }
     this.alpha = 0;
@@ -399,11 +401,10 @@ var s = function( p ) {
   Squiggle.prototype.move = function() {
   	this.factor = this.factor * (15/16) + this.tfactor * (1/16);
     
-    this.verticeTimer -= 1;
 
-    if (this.verticeTimer < 0){
+    if (--this.verticeTimer < 0){
       this.randomiseTVertices();
-      this.verticeTimer = p.random(4*this.factor, 10*this.factor);
+      this.verticeTimer = (p.random(4*this.factor, 10*this.factor) | 0);
     }
     else {
       for (var i = this.vertices.length - 1; i >= 0; i -= 1) {
