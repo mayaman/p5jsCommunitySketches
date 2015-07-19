@@ -211,7 +211,7 @@ var s = function( p ) {
   	// the more friends you have, the harder it is to make new ones
   	// Gives a more "even" network
 
-    if (p.random(1) < 3/(this.friends.length + 5)){
+    if (p.random(1)*(this.friends.length + 5) < 3){
       
       if (!this.nextFriend.isBefriended){
         this.nextFriend.isBefriended = true;
@@ -354,9 +354,9 @@ var s = function( p ) {
     // make it a random squiggle
     var points = 2 * (p.random(7, 10) | 0);
     this.vertices = new Float32Array(points);
-    this.tvertices = new Float32Array(this.vertices.length);
+    this.nextvertices = new Float32Array(this.vertices.length);
     this.randomiseVertices();
-    this.randomiseTVertices();
+    this.randomiseNextVertices();
 
     // squiggle's colour
     this.r = p.random(64, 255);
@@ -388,28 +388,28 @@ var s = function( p ) {
     };
   }
 
-  Squiggle.prototype.randomiseTVertices = function () {
-    for (var i = 0; i < this.tvertices.length; i += 2) {
-      var t = p.TAU* (p.random(2) + i) / this.tvertices.length;
+  Squiggle.prototype.randomiseNextVertices = function () {
+    for (var i = 0; i < this.nextvertices.length; i += 2) {
+      var t = p.TAU * (p.random(2) + i) / this.nextvertices.length;
       var r =  p.random(0.1, 1);
-      this.tvertices[i]     = r*Math.sin(t);
-      this.tvertices[i + 1] = r*Math.cos(t);
+      this.nextvertices[i]     = r*Math.sin(t);
+      this.nextvertices[i + 1] = r*Math.cos(t);
     };
   }
 
   // Makes it look like they're talking :)
   Squiggle.prototype.move = function() {
-  	this.factor = this.factor * (15/16) + this.tfactor * (1/16);
+  	this.factor = this.factor * 0.9375 + this.tfactor * 0.0625;
     
 
     if (--this.verticeTimer < 0){
-      this.randomiseTVertices();
+      this.randomiseNextVertices();
       this.verticeTimer = (p.random(4*this.factor, 10*this.factor) | 0);
     }
     else {
       for (var i = this.vertices.length - 1; i >= 0; i -= 1) {
       	var speed = 0.25 / this.factor 
-        this.vertices[i] = (1 - speed)*this.vertices[i] + speed*this.tvertices[i];
+        this.vertices[i] = (1 - speed)*this.vertices[i] + speed*this.nextvertices[i];
       }
     }
   }
