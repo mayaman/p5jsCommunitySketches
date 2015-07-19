@@ -44,7 +44,7 @@ var s = function( p ) {
       var rPosX = 100;
       var rPosY = ((3 * this.sH) / 4) - 100;
       
-      // Let's shake!
+      // Lets shake!
       p.push(); // shake push
       p.translate(p.random(-this.elementState.robot1Shake.x, this.elementState.robot1Shake.x),
         p.random(-this.elementState.robot1Shake.y, this.elementState.robot1Shake.y));
@@ -152,9 +152,9 @@ var s = function( p ) {
     this.sH = h;
     
     this.elementState = {
-      MAX_PEOPLE : 20,
+      MAX_PEOPLE : 50,
       people : [],
-      nFramesToAddPerson : 30
+      nFramesToAddPerson : 10
     };
   
     this.drawScene = function () {
@@ -164,9 +164,59 @@ var s = function( p ) {
       
       // To draw each "person"
       for (var i = 0; i < this.elementState.people.length; ++i) {
+      
+        p.fill(this.elementState.people[i].color);
+      
+        var myText = p.floor(p.random(0, 9));
+      
+        switch (myText) {
+           case 0:
+             p.text("?", this.elementState.people[i].x, this.elementState.people[i].y - 5);
+             break;        
+           case 1:
+             p.text("!", this.elementState.people[i].x, this.elementState.people[i].y - 5);
+             break;
+           case 2:
+             p.text(":)", this.elementState.people[i].x, this.elementState.people[i].y - 5);
+             break;
+           case 3:
+             p.text("thx", this.elementState.people[i].x, this.elementState.people[i].y - 5);
+             break;
+           case 4:
+             p.text("pls", this.elementState.people[i].x, this.elementState.people[i].y - 5);
+             break;
+           case 5:
+             p.text("noprobs", this.elementState.people[i].x, this.elementState.people[i].y - 5);
+             break;
+           case 6:
+             p.text("logX", this.elementState.people[i].x, this.elementState.people[i].y - 5);
+             break;
+           case 7:
+             p.text("sinX", this.elementState.people[i].x, this.elementState.people[i].y - 5);
+             break;
+           case 8:
+             p.text("line()", this.elementState.people[i].x, this.elementState.people[i].y - 5);
+             break;
+           case 9:
+             p.text("ellipse()", this.elementState.people[i].x, this.elementState.people[i].y - 5);
+             break;  
+        }
         
-        p.fill(255, 0, 0);
-        p.ellipse(this.elementState.people[i].x, this.elementState.people[i].y, 50, 50);
+        // body
+        p.line(this.elementState.people[i].x, this.elementState.people[i].y, 
+          this.elementState.people[i].x, this.elementState.people[i].y + 20);
+        // arms  
+        p.line(this.elementState.people[i].x - 10, this.elementState.people[i].y + 10, 
+          this.elementState.people[i].x + 10, this.elementState.people[i].y + 10);  
+        //left leg  
+        p.line(this.elementState.people[i].x, this.elementState.people[i].y + 20, 
+          this.elementState.people[i].x - 10, this.elementState.people[i].y + 40);  
+        //right leg  
+        p.line(this.elementState.people[i].x, this.elementState.people[i].y + 20, 
+          this.elementState.people[i].x + 10, this.elementState.people[i].y + 40);
+        // head
+        p.ellipse(this.elementState.people[i].x, this.elementState.people[i].y, 10, 10);    
+        
       }
       
       if (this.elementState.people.length > this.elementState.MAX_PEOPLE) {
@@ -175,10 +225,13 @@ var s = function( p ) {
       
       // After certain quantity of frames, add another person
       if (p.frameCount % this.elementState.nFramesToAddPerson == 0) {
+      
+        var gapValX = (((19 * this.sW) / 20) - ((3 * this.sW) / 4)) / 10;
+        var gapValY = (((9 * this.sH) / 10) - ((this.sH) / 10)) / 10;
         
         this.elementState.people.push({
-          x : p.random(this.sW / 2, (9 * this.sW) / 10),
-          y : p.random(this.sH / 10, (9 * this.sH) / 10),
+          x : ((3 * this.sW) / 4) + p.floor(p.random(0, gapValX) * 10),
+          y : ((this.sH) / 10) + p.floor(p.random(0, gapValY * 10)),
           color : p.color(p.random(0, 255), p.random(0, 255), p.random(0, 255))
         });  
       }
@@ -189,12 +242,14 @@ var s = function( p ) {
     
     p.p5Logo = p.loadImage("../p5-asterisk.png");
     p.imageMode(p.CENTER);
+    p.textFont("times");
   };
 
   p.setup = function() {
     // put setup code here
+    p.frameRate(60);
     p.createCanvas(p.windowWidth, p.windowHeight);
-    p.background('#AFAFAF');
+    p.background("#AFAFAF");
     
     // Adding scenes
     p.scenes.push(new p.sceneOne(p.windowWidth, p.windowHeight));
@@ -202,10 +257,8 @@ var s = function( p ) {
   };
 
   p.draw = function() {
-  
-    p.frameRate(60);
 
-    p.background('#AFAFAF');
+    p.background("#AFAFAF");
     p.scenes[0].drawScene();
     p.scenes[1].drawScene();
   };
