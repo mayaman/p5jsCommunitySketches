@@ -24,7 +24,7 @@ var s = function( p ) {
         x : 0,
         y : 0,
         y2 : 10,
-        adv : 5
+        adv : 2
       },
       robot1Shake : {
       	x : 5,
@@ -44,7 +44,7 @@ var s = function( p ) {
       var rPosX = 100;
       var rPosY = ((3 * this.sH) / 4) - 100;
       
-      // Let's shake!
+      // Lets shake!
       p.push(); // shake push
       p.translate(p.random(-this.elementState.robot1Shake.x, this.elementState.robot1Shake.x),
         p.random(-this.elementState.robot1Shake.y, this.elementState.robot1Shake.y));
@@ -53,6 +53,7 @@ var s = function( p ) {
       this.elementState.robot1Shake.y *= -1;
       
       p.rect(rPosX, rPosY, rW, rH, 20);
+      p.rect(rPosX + 5, ((rPosY + rH) + rPosY) / 2 , rW - 5, rH / 4);
       
       // Robot 1 wheel
       var wheel1X = rPosX + (rW / 3);
@@ -115,6 +116,7 @@ var s = function( p ) {
       p.stroke(0);
       p.push(); // wheel location push
       p.translate(wheel1X, wheel1Y);
+      p.ellipse(0, 0, wheel1D / 4, wheel1D / 4);
       
       var wheel1Xb = 0;
       var wheel1Yb = -wheel1D / 3; 
@@ -123,6 +125,7 @@ var s = function( p ) {
       p.rotate(this.elementState.robot1WheelAngle);
       p.fill(0);
       p.ellipse(wheel1Xb, wheel1Yb, wheel1Db, wheel1Db);
+      p.ellipse(-wheel1Xb, -wheel1Yb, wheel1Db / 2, wheel1Db / 2);
       this.elementState.robot1WheelAngle += this.elementState.robot1WheelRotation;
       p.pop(); // wheel location pop
       
@@ -152,9 +155,12 @@ var s = function( p ) {
     this.sH = h;
     
     this.elementState = {
-      MAX_PEOPLE : 20,
+      MAX_PEOPLE : 45,
       people : [],
-      nFramesToAddPerson : 30
+      nFramesToAddPerson : 10,
+      nFramesToAddText : 45,
+      texts : ["Hello!", "Welcome!", "Thank you!", "You're welcome", "Thx", "noprobs",
+        ":)", "sin(X)", "line()", "random()"]
     };
   
     this.drawScene = function () {
@@ -164,9 +170,36 @@ var s = function( p ) {
       
       // To draw each "person"
       for (var i = 0; i < this.elementState.people.length; ++i) {
+      
+        p.fill(this.elementState.people[i].color);
         
-        p.fill(255, 0, 0);
-        p.ellipse(this.elementState.people[i].x, this.elementState.people[i].y, 50, 50);
+        if (p.frameCount % this.elementState.nFramesToAddText == 0) {
+          
+          this.elementState.people[i].text = this.elementState.texts[p.floor(
+            p.random(0, this.elementState.texts.length - 1))];
+        }      
+        
+        // body
+        p.line(this.elementState.people[i].x, this.elementState.people[i].y, 
+          this.elementState.people[i].x, this.elementState.people[i].y + 20);
+        // arms  
+        p.line(this.elementState.people[i].x - 10, this.elementState.people[i].y + 10, 
+          this.elementState.people[i].x + 10, this.elementState.people[i].y + 10);  
+        //left leg  
+        p.line(this.elementState.people[i].x, this.elementState.people[i].y + 20, 
+          this.elementState.people[i].x - 10, this.elementState.people[i].y + 40);  
+        //right leg  
+        p.line(this.elementState.people[i].x, this.elementState.people[i].y + 20, 
+          this.elementState.people[i].x + 10, this.elementState.people[i].y + 40);
+        // head
+        p.ellipse(this.elementState.people[i].x, this.elementState.people[i].y, 10, 10);
+        
+        p.stroke(this.elementState.people[i].color);
+        p.strokeWeight(1);
+        p.text(this.elementState.people[i].text, this.elementState.people[i].x,
+          this.elementState.people[i].y - 5);
+        p.strokeWeight(2);
+        p.stroke(0);
       }
       
       if (this.elementState.people.length > this.elementState.MAX_PEOPLE) {
@@ -175,12 +208,91 @@ var s = function( p ) {
       
       // After certain quantity of frames, add another person
       if (p.frameCount % this.elementState.nFramesToAddPerson == 0) {
+      
+        var gapValX = (((19 * this.sW) / 20) - ((3 * this.sW) / 4)) / 20;
+        var gapValY = (((9 * this.sH) / 10) - ((this.sH) / 10)) / 20;
         
         this.elementState.people.push({
-          x : p.random(this.sW / 2, (9 * this.sW) / 10),
-          y : p.random(this.sH / 10, (9 * this.sH) / 10),
-          color : p.color(p.random(0, 255), p.random(0, 255), p.random(0, 255))
+          x : ((3 * this.sW) / 4) + (p.floor(p.random(0, gapValX)) * 20),
+          y : ((this.sH) / 10) + (p.floor(p.random(0, gapValY)) * 20),
+          color : p.color(p.random(0, 225), p.random(0, 225), p.random(0, 225)),
+          text : ""
         });  
+      }
+    };
+  };
+  
+  // this scene is about "sketching", the idea is to show a
+  // progress from simple to complex
+  p.sceneThree = function (w, h) {
+  
+    this.sW = w;
+    this.sH = h;
+    
+    this.elementState = {
+      // Set of graphic buffers
+      sketches : [],
+      nFramesToAddSketches : 10,
+      currSketch : 0
+    };
+    
+    // Loading the sketches
+    var size = p.min(w / 4, h / 4);
+    var sketch1 = p.createGraphics(size, size);
+    sketch1.background("#8F8F8F");
+    sketch1.stroke(0);
+    sketch1.line(size / 10, size / 10, 9 * size / 10, 9 * size / 10);
+    
+    this.elementState.sketches.push({sketch : sketch1, posX : w / 10,
+      posY : h / 10});
+    
+    var sketch2 = p.createGraphics(size, size);
+    sketch2.background("#FFFFFF");
+    sketch2.stroke(0);
+    sketch2.strokeWeight(2);
+    sketch2.blendMode(p.DIFFERENCE);
+    sketch2.fill("#0000FF");
+    sketch2.ellipse(0, 0, 2 * size, 2 * size);
+    sketch2.fill("#00FF00");
+    sketch2.ellipse(size, 0, 2 * size, 2 * size);
+    sketch2.fill("#FF0000");
+    sketch2.ellipse(size / 2, size, size, size);
+    
+    this.elementState.sketches.push({sketch : sketch2, posX : w / 3,
+      posY : h / 3});
+      
+    var sketch3 = p.createGraphics(size, size);
+    sketch3.background(0);
+    sketch3.stroke(255);
+    sketch3.noFill();
+    sketch3.beginShape(p.TRIANGLE_STRIP);
+    
+    for (var j = 0; j < 20; ++j) {
+      
+      sketch3.vertex(p.random(0, size), p.random(0, size));
+      sketch3.vertex(p.random(0, size), p.random(0, size));
+      sketch3.vertex(p.random(0, size), p.random(0, size));
+    }
+    
+    sketch3.endShape();
+    
+    this.elementState.sketches.push({sketch : sketch3, posX : w / 2,
+      posY : h / 2});
+    
+    this.drawScene = function () {
+      
+      p.stroke(75);
+      p.strokeWeight(1);
+      
+      var curr = this.elementState.currSketch % this.elementState.sketches.length;
+      for (i = 0; i <= curr; ++i) {
+        
+        p.image(this.elementState.sketches[i].sketch, this.elementState.sketches[i].posX,
+          this.elementState.sketches[i].posY);
+      }
+      
+      if (p.frameCount % this.elementState.nFramesToAddSketches == 0) {
+        ++this.elementState.currSketch;
       }
     };
   };
@@ -189,25 +301,27 @@ var s = function( p ) {
     
     p.p5Logo = p.loadImage("../p5-asterisk.png");
     p.imageMode(p.CENTER);
+    p.textFont("times");
   };
 
   p.setup = function() {
     // put setup code here
+    p.frameRate(60);
     p.createCanvas(p.windowWidth, p.windowHeight);
-    p.background('#AFAFAF');
+    p.background("#AFAFAF");
     
     // Adding scenes
-    p.scenes.push(new p.sceneOne(p.windowWidth, p.windowHeight));
     p.scenes.push(new p.sceneTwo(p.windowWidth, p.windowHeight));
+    p.scenes.push(new p.sceneThree(p.windowWidth, p.windowHeight));
+    p.scenes.push(new p.sceneOne(p.windowWidth, p.windowHeight));
   };
 
   p.draw = function() {
-  
-    p.frameRate(60);
 
-    p.background('#AFAFAF');
+    p.background("#AFAFAF");
     p.scenes[0].drawScene();
     p.scenes[1].drawScene();
+    p.scenes[2].drawScene();
   };
 };
 
