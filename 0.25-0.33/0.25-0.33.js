@@ -70,12 +70,26 @@ var s = function( p ) {
     askedIndex = 0;
 
     p5Asterisk = new Asterisk();
+    
+    userIcon = p.createGraphics(particleRadius, particleRadius);
+    befriendIcon = p.createGraphics(particleRadius, particleRadius);
+    notAvailableIcon = p.createGraphics(particleRadius, particleRadius);
+
+    p.loadImage("assets/user.png", function(tempImg){
+      userIcon.image(tempImg, 0, 0, particleRadius, particleRadius);
+    });
+    
+    p.loadImage("assets/befriended.png", function(tempImg){
+      befriendIcon.image(tempImg, 0, 0, particleRadius, particleRadius);
+    });
+       
+    p.loadImage("assets/unavailable.png", function(tempImg){
+      notAvailableIcon.image(tempImg, 0, 0, particleRadius, particleRadius);    
+    });
+    
     p.imageMode(p.CENTER);
     p.strokeWeight(particleRadius/8);
-    
-    userIcon = p.loadImage("assets/user.png");
-    befriendIcon = p.loadImage("assets/befriended.png");
-    notAvailableIcon = p.loadImage("assets/unavailable.png");
+
   };
 
   p.draw = function() {
@@ -175,7 +189,7 @@ var s = function( p ) {
   }
 
   Drifter.prototype.drawIcon = function(icon) {
-    p.image(icon, (this.x|0), (this.y|0), particleRadius, particleRadius);
+    p.image(icon, (this.x|0), (this.y|0));
   }
   
   Drifter.prototype.move = function() {
@@ -293,7 +307,13 @@ var s = function( p ) {
   var Asterisk = function () {
     Drifter.call(this);
     // Image and matching colors
-    this.img = p.loadImage("assets/p5-asterisk.png");
+    this.p5img = p.createGraphics(particleRadius, particleRadius);
+    var ast = this;
+    p.loadImage("assets/p5-asterisk.png", function(tempImg){
+      console.log("loaded asterisk!");
+      ast.p5img.image(tempImg, 0, 0, particleRadius, particleRadius);
+    });
+    
 
     //p5 is always looking for friends!
     this.maxFriends = particles.length;
@@ -305,7 +325,7 @@ var s = function( p ) {
   Asterisk.prototype.constructor = Asterisk;
 
   Asterisk.prototype.draw = function(){
-    p.image(this.img, (this.x|0), (this.y|0), particleRadius, particleRadius);
+    p.image(this.p5img, (this.x|0), (this.y|0));
   }
   
   Asterisk.prototype.drift = function() {
