@@ -24,7 +24,7 @@ var s = function( p ) {
         x : 0,
         y : 0,
         y2 : 10,
-        adv : 5
+        adv : 2
       },
       robot1Shake : {
       	x : 5,
@@ -152,9 +152,12 @@ var s = function( p ) {
     this.sH = h;
     
     this.elementState = {
-      MAX_PEOPLE : 50,
+      MAX_PEOPLE : 45,
       people : [],
-      nFramesToAddPerson : 10
+      nFramesToAddPerson : 10,
+      nFramesToAddText : 45,
+      texts : ["Hello!", "Welcome!", "Thank you!", "You're welcome", "Thx", "noprobs",
+        ":)", "sin(X)", "line()", "random()"]
     };
   
     this.drawScene = function () {
@@ -166,41 +169,12 @@ var s = function( p ) {
       for (var i = 0; i < this.elementState.people.length; ++i) {
       
         p.fill(this.elementState.people[i].color);
-      
-        var myText = p.floor(p.random(0, 9));
-      
-        switch (myText) {
-           case 0:
-             p.text("?", this.elementState.people[i].x, this.elementState.people[i].y - 5);
-             break;        
-           case 1:
-             p.text("!", this.elementState.people[i].x, this.elementState.people[i].y - 5);
-             break;
-           case 2:
-             p.text(":)", this.elementState.people[i].x, this.elementState.people[i].y - 5);
-             break;
-           case 3:
-             p.text("thx", this.elementState.people[i].x, this.elementState.people[i].y - 5);
-             break;
-           case 4:
-             p.text("pls", this.elementState.people[i].x, this.elementState.people[i].y - 5);
-             break;
-           case 5:
-             p.text("noprobs", this.elementState.people[i].x, this.elementState.people[i].y - 5);
-             break;
-           case 6:
-             p.text("logX", this.elementState.people[i].x, this.elementState.people[i].y - 5);
-             break;
-           case 7:
-             p.text("sinX", this.elementState.people[i].x, this.elementState.people[i].y - 5);
-             break;
-           case 8:
-             p.text("line()", this.elementState.people[i].x, this.elementState.people[i].y - 5);
-             break;
-           case 9:
-             p.text("ellipse()", this.elementState.people[i].x, this.elementState.people[i].y - 5);
-             break;  
-        }
+        
+        if (p.frameCount % this.elementState.nFramesToAddText == 0) {
+          
+          this.elementState.people[i].text = this.elementState.texts[p.floor(
+            p.random(0, this.elementState.texts.length - 1))];
+        }      
         
         // body
         p.line(this.elementState.people[i].x, this.elementState.people[i].y, 
@@ -215,8 +189,14 @@ var s = function( p ) {
         p.line(this.elementState.people[i].x, this.elementState.people[i].y + 20, 
           this.elementState.people[i].x + 10, this.elementState.people[i].y + 40);
         // head
-        p.ellipse(this.elementState.people[i].x, this.elementState.people[i].y, 10, 10);    
+        p.ellipse(this.elementState.people[i].x, this.elementState.people[i].y, 10, 10);
         
+        p.stroke(this.elementState.people[i].color);
+        p.strokeWeight(1);
+        p.text(this.elementState.people[i].text, this.elementState.people[i].x,
+          this.elementState.people[i].y - 5);
+        p.strokeWeight(2);
+        p.stroke(0);
       }
       
       if (this.elementState.people.length > this.elementState.MAX_PEOPLE) {
@@ -226,13 +206,14 @@ var s = function( p ) {
       // After certain quantity of frames, add another person
       if (p.frameCount % this.elementState.nFramesToAddPerson == 0) {
       
-        var gapValX = (((19 * this.sW) / 20) - ((3 * this.sW) / 4)) / 10;
-        var gapValY = (((9 * this.sH) / 10) - ((this.sH) / 10)) / 10;
+        var gapValX = (((19 * this.sW) / 20) - ((3 * this.sW) / 4)) / 20;
+        var gapValY = (((9 * this.sH) / 10) - ((this.sH) / 10)) / 20;
         
         this.elementState.people.push({
-          x : ((3 * this.sW) / 4) + p.floor(p.random(0, gapValX) * 10),
-          y : ((this.sH) / 10) + p.floor(p.random(0, gapValY * 10)),
-          color : p.color(p.random(0, 255), p.random(0, 255), p.random(0, 255))
+          x : ((3 * this.sW) / 4) + (p.floor(p.random(0, gapValX)) * 20),
+          y : ((this.sH) / 10) + (p.floor(p.random(0, gapValY)) * 20),
+          color : p.color(p.random(0, 225), p.random(0, 225), p.random(0, 225)),
+          text : ""
         });  
       }
     };
