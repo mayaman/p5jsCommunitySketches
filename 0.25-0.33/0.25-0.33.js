@@ -276,7 +276,15 @@ var s = function( p ) {
     }
 
     // we asked if nextFriend wants to be our friend,
-    // so we can increment askedIndex
+    // so we increment askedIndex, but first swap
+    // the particle at that point with this.nextFriend
+    for (var i = askedIndex; i < nextTargetIndex; i++){
+      if (particles[i] === this.nextFriend){
+        particles[i] = particles[askedIndex];
+        particles[askedIndex] = this.nextFriend;
+        break;
+      }
+    }
     askedIndex++;
 
     // find a new potential friend to chase
