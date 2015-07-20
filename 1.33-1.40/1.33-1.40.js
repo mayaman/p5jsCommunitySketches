@@ -53,6 +53,7 @@ var s = function( p ) {
       this.elementState.robot1Shake.y *= -1;
       
       p.rect(rPosX, rPosY, rW, rH, 20);
+      p.rect(rPosX + 5, ((rPosY + rH) + rPosY) / 2 , rW - 5, rH / 4);
       
       // Robot 1 wheel
       var wheel1X = rPosX + (rW / 3);
@@ -115,6 +116,7 @@ var s = function( p ) {
       p.stroke(0);
       p.push(); // wheel location push
       p.translate(wheel1X, wheel1Y);
+      p.ellipse(0, 0, wheel1D / 4, wheel1D / 4);
       
       var wheel1Xb = 0;
       var wheel1Yb = -wheel1D / 3; 
@@ -123,6 +125,7 @@ var s = function( p ) {
       p.rotate(this.elementState.robot1WheelAngle);
       p.fill(0);
       p.ellipse(wheel1Xb, wheel1Yb, wheel1Db, wheel1Db);
+      p.ellipse(-wheel1Xb, -wheel1Yb, wheel1Db / 2, wheel1Db / 2);
       this.elementState.robot1WheelAngle += this.elementState.robot1WheelRotation;
       p.pop(); // wheel location pop
       
@@ -218,6 +221,81 @@ var s = function( p ) {
       }
     };
   };
+  
+  // this scene is about "sketching", the idea is to show a
+  // progress from simple to complex
+  p.sceneThree = function (w, h) {
+  
+    this.sW = w;
+    this.sH = h;
+    
+    this.elementState = {
+      // Set of graphic buffers
+      sketches : [],
+      nFramesToAddSketches : 10,
+      currSketch : 0
+    };
+    
+    // Loading the sketches
+    var size = p.min(w / 4, h / 4);
+    var sketch1 = p.createGraphics(size, size);
+    sketch1.background("#8F8F8F");
+    sketch1.stroke(0);
+    sketch1.line(size / 10, size / 10, 9 * size / 10, 9 * size / 10);
+    
+    this.elementState.sketches.push({sketch : sketch1, posX : w / 10,
+      posY : h / 10});
+    
+    var sketch2 = p.createGraphics(size, size);
+    sketch2.background("#FFFFFF");
+    sketch2.stroke(0);
+    sketch2.strokeWeight(2);
+    sketch2.blendMode(p.DIFFERENCE);
+    sketch2.fill("#0000FF");
+    sketch2.ellipse(0, 0, 2 * size, 2 * size);
+    sketch2.fill("#00FF00");
+    sketch2.ellipse(size, 0, 2 * size, 2 * size);
+    sketch2.fill("#FF0000");
+    sketch2.ellipse(size / 2, size, size, size);
+    
+    this.elementState.sketches.push({sketch : sketch2, posX : w / 3,
+      posY : h / 3});
+      
+    var sketch3 = p.createGraphics(size, size);
+    sketch3.background(0);
+    sketch3.stroke(255);
+    sketch3.noFill();
+    sketch3.beginShape(p.TRIANGLE_STRIP);
+    
+    for (var j = 0; j < 20; ++j) {
+      
+      sketch3.vertex(p.random(0, size), p.random(0, size));
+      sketch3.vertex(p.random(0, size), p.random(0, size));
+      sketch3.vertex(p.random(0, size), p.random(0, size));
+    }
+    
+    sketch3.endShape();
+    
+    this.elementState.sketches.push({sketch : sketch3, posX : w / 2,
+      posY : h / 2});
+    
+    this.drawScene = function () {
+      
+      p.stroke(75);
+      p.strokeWeight(1);
+      
+      var curr = this.elementState.currSketch % this.elementState.sketches.length;
+      for (i = 0; i <= curr; ++i) {
+        
+        p.image(this.elementState.sketches[i].sketch, this.elementState.sketches[i].posX,
+          this.elementState.sketches[i].posY);
+      }
+      
+      if (p.frameCount % this.elementState.nFramesToAddSketches == 0) {
+        ++this.elementState.currSketch;
+      }
+    };
+  };
 
   p.preload = function () {
     
@@ -233,8 +311,9 @@ var s = function( p ) {
     p.background("#AFAFAF");
     
     // Adding scenes
-    p.scenes.push(new p.sceneOne(p.windowWidth, p.windowHeight));
     p.scenes.push(new p.sceneTwo(p.windowWidth, p.windowHeight));
+    p.scenes.push(new p.sceneThree(p.windowWidth, p.windowHeight));
+    p.scenes.push(new p.sceneOne(p.windowWidth, p.windowHeight));
   };
 
   p.draw = function() {
@@ -242,6 +321,7 @@ var s = function( p ) {
     p.background("#AFAFAF");
     p.scenes[0].drawScene();
     p.scenes[1].drawScene();
+    p.scenes[2].drawScene();
   };
 };
 
