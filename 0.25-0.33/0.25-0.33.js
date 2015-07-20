@@ -28,6 +28,11 @@
  Processing sketch. You know, the one that looks like:
  http://studio.sketchpad.cc/sp/pad/view/ro.9sfQKA0T6QIW-/rev.10
 
+ "befriended.png" and "unavailable.png" are rasterised
+ versions of the Font Awesome glyps "user plus" and 
+ "user times".
+ http://fontawesome.io/icon/user-plus/
+ http://fontawesome.io/icon/user-times/
 */
 
 var s = function( p ) {
@@ -35,6 +40,7 @@ var s = function( p ) {
 
   var nextTargetIndex, askedIndex;
   
+  var befriendIcon, notAvailableIcon;
   // Create a center-point to gently nudge 
   // the particles towards, so they don't
   // drift off-screen
@@ -63,16 +69,19 @@ var s = function( p ) {
     p5Asterisk = new Asterisk();
     p.imageMode(p.CENTER);
     p.strokeWeight(2);
+    
+    befriendIcon = p.loadImage("assets/befriended.png");
+    notAvailableIcon = p.loadImage("assets/unavailable.png");
   };
 
   p.draw = function() {
     p.background(255, 255, 255);
-    
-    for (var i = nextTargetIndex - 1; i >= 0; i--) {
+
+   for (var i = nextTargetIndex - 1; i >= 0; i--) {
       particles[i].move();
     };
     p5Asterisk.move();
-    
+
     // Draw the unavailable particles in the back
     for (var i = askedIndex - 1; i >= 0; i--) { // can only be unavailable if already asked
       if (!particles[i].isBefriended){
@@ -96,9 +105,10 @@ var s = function( p ) {
       if (particles[i].isBefriended || i >= askedIndex){
         particles[i].draw();
       }
-    };    
-
+    };
+    
     p5Asterisk.draw();
+   
   };
 
 
@@ -129,10 +139,22 @@ var s = function( p ) {
     this.maxFriends = 2;
 
     this.nextFriend = null;
+    
+    this.iconTimer = 0;
   };
 
   Drifter.prototype.draw = function() {
     this.squiggle.draw(this.x, this.y);
+
+    if (this.iconTimer > 0){
+      var img = notAvailableIcon;
+      if (this.isBefriended) {
+        img = befriendIcon;
+      }
+      var size = particleRadius*2*this.iconTimer/120;
+      p.image(img, this.x, this.y, size, size);
+      this.iconTimer--;
+    }
     return this;
   };
 
@@ -203,8 +225,7 @@ var s = function( p ) {
 
   Drifter.prototype.befriend = function(){
   	// the more friends you have, the harder it is to make new ones
-  	// Gives a more "even" network
-
+  	// Gives a more evenly distributed network
     if (p.random(1)*(this.friends.length + 5) < 3){
       
       if (!this.nextFriend.isBefriended){
@@ -221,17 +242,32 @@ var s = function( p ) {
       p5Asterisk.friends.push(this.nextFriend);
 
     } else {
-      // Squiggle slower if not available,
-      // be bigger in size, and nearly transparant
-      this.nextFriend.squiggle.tfactor = 8;
-      this.nextFriend.squiggle.talpha = 16;
+      // Initialised to this value by default
+      // this.nextFriend.isBefriended = false;
+
+      // shrink down to nothingness
+      this.nextFriend.squiggle.tfactor = 0;
+      this.nextFriend.squiggle.talpha = 0;
     }
 
-    this.nextTarget();
+    // regardless of whether we befriend our target,
+    // it should show icon for 120 frames
+    this.nextFriend.iconTimer = 120;
+
+    // we asked if nextFriend wants to be our friend,
+    // so we can increment askedIndex
     askedIndex++;
+
+    // find a new potential friend to chase
+    this.nextTarget();
+    
+    
   }
 
   Drifter.prototype.nextTarget = function(){
+    // If we're not at our maximum number of friends,
+    // and there are still particles to ask, ask the
+    // next particle in line.
     if (this.friends.length < this.maxFriends && nextTargetIndex < particles.length){
       this.nextFriend = particles[nextTargetIndex++];
     } else {
@@ -239,7 +275,6 @@ var s = function( p ) {
     }
     return this;
   }
-
 
   Drifter.prototype.sqDist = function(that){
   	var dx = this.x - that.x;
@@ -326,15 +361,16 @@ var s = function( p ) {
   Squiggle.prototype.move = function() {
   	this.factor = this.factor * 0.9375 + this.tfactor * 0.0625;
     
-
-    if (--this.verticeTimer < 0){
-      this.randomiseNextVertices();
-      this.verticeTimer = (p.random(4*this.factor, 10*this.factor) | 0);
-    }
-    else {
-      for (var i = this.vertices.length - 1; i >= 0; i -= 1) {
-      	var speed = 0.25 / this.factor 
-        this.vertices[i] = (1 - speed)*this.vertices[i] + speed*this.nextvertices[i];
+    if (this.factor > 1){
+      if (--this.verticeTimer < 0){
+        this.randomiseNextVertices();
+        this.verticeTimer = (p.random(4*this.factor, 10*this.factor) | 0);
+      }
+      else {
+        for (var i = this.vertices.length - 1; i >= 0; i -= 1) {
+        	var speed = 0.25 / this.factor 
+          this.vertices[i] = (1 - speed)*this.vertices[i] + speed*this.nextvertices[i];
+        }
       }
     }
   }
@@ -342,20 +378,22 @@ var s = function( p ) {
   Squiggle.prototype.draw = function(x, y) {
 
     this.alpha = this.alpha * 0.90625 + this.talpha * 0.09375;
-    p.fill(this.r, this.g, this.b, this.alpha);
-    p.noStroke();
+    if (this.alpha > 5){
+      p.fill(this.r, this.g, this.b, this.alpha);
+      p.noStroke();
 
-    p.beginShape();
-
-    var radius = particleRadius * this.factor;
-    for (var i = 0; i < this.vertices.length; i += 2) {
-      p.curveVertex(x + radius * this.vertices[i], y + radius * this.vertices[i+1]);
-    };
-    p.curveVertex(x + radius * this.vertices[0], y + radius * this.vertices[1]);
-    p.curveVertex(x + radius * this.vertices[2], y + radius * this.vertices[3]);
-    p.curveVertex(x + radius * this.vertices[4], y + radius * this.vertices[5]);
-
-    p.endShape();
+      p.beginShape();
+      {
+        var radius = particleRadius * this.factor;
+        for (var i = 0; i < this.vertices.length; i += 2) {
+          p.curveVertex(x + radius * this.vertices[i], y + radius * this.vertices[i+1]);
+        };
+        p.curveVertex(x + radius * this.vertices[0], y + radius * this.vertices[1]);
+        p.curveVertex(x + radius * this.vertices[2], y + radius * this.vertices[3]);
+        p.curveVertex(x + radius * this.vertices[4], y + radius * this.vertices[5]);
+      }
+      p.endShape();
+    }
   }
 
 
