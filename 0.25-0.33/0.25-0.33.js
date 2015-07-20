@@ -33,6 +33,8 @@
 var s = function( p ) {
   var particles, p5Asterisk;
 
+  var friendFinder;
+  
   // Create a center-point to gently nudge 
   // the particles towards, so they don't
   // drift off-screen
@@ -54,6 +56,8 @@ var s = function( p ) {
     for (var i = 0; i < 50; i++) {
       particles.push(new Drifter());
     };
+    
+    friendFinder = new FriendFinder();
 
     p5Asterisk = new Asterisk();
     p.imageMode(p.CENTER);
@@ -68,6 +72,8 @@ var s = function( p ) {
       }
     };
     p5Asterisk.move();
+    
+    friendFinder.findFriends();
 
     // Draw the unavailable particles in the back
     for (var i = particles.length - 1; i >= 0; i--) {
@@ -158,7 +164,7 @@ var s = function( p ) {
 
   Drifter.prototype.drift = function() {
     // random acceleration with negative feedback to angular velocity
-    this.ddtheta = p.random(-0.1 - this.dtheta * 0.1, 0.1 - this.dtheta * 0.1);
+    this.ddtheta = p.random(-0.09375 - this.dtheta * 0.09375, 0.09375 - this.dtheta * 0.09375);
     this.dtheta = this.dtheta + this.ddtheta;
     this.theta = (this.theta + this.dtheta + p.TAU) % p.TAU;
 
@@ -173,12 +179,12 @@ var s = function( p ) {
       var dx = this.x - cx;
       var dy = this.y - cy;
       var dist = Math.sqrt(dx*dx + dy*dy);
-      if (dist > cradius/2) {
-         this.x = this.x - dx*0.005;
-         this.y = this.y - dy*0.005;
+      if (dist > cradius * 0.5) {
+         this.x = this.x - dx * 0.0048828125;
+         this.y = this.y - dy * 0.0048828125;
       } else {
-         this.x = this.x + dx*0.01;
-         this.y = this.y + dy*0.01;
+         this.x = this.x + dx * 0.009765625;
+         this.y = this.y + dy * 0.009765625;
       }
     }    
     // add velocity to position
@@ -189,16 +195,12 @@ var s = function( p ) {
   }  
 
   Drifter.prototype.follow = function() {
-    var dx, dy;
     if (this.nextFriend != null){
-      this.x = this.x * 0.9 + this.nextFriend.x * 0.1;
-      this.y = this.y * 0.9 + this.nextFriend.y * 0.1;
-
-      dx = (this.x - this.nextFriend.x);
-      dy = (this.y - this.nextFriend.y);
+      this.x = this.x * 0.90625 + this.nextFriend.x * 0.09375;
+      this.y = this.y * 0.90625 + this.nextFriend.y * 0.09375;
 
       // If less than particleRadius pixels away from nextFriend
-      if (dx*dx + dy*dy < particleRadius*particleRadius){
+      if (this.sqDist(this.nextFriend) < particleRadius*particleRadius){
         this.nextFriend.isFollowed = false;
         //Try to befriend 
         this.befriend();
@@ -255,24 +257,23 @@ var s = function( p ) {
   Drifter.prototype.findTarget = function() {
     this.nextFriend = null;
   	if(this.friends.length < this.maxFriends){
-      // Filter out the particles who are 
-      // not available or are being followed
-      // and check if there are still free particles
-      var potentialFriends = new Array(0);
-      for (var i = particles.length - 1; i >= 0; i--) {
-        if (!(particles[i].isBefriended || particles[i].isFollowed || particles[i].isNotAvailable)){
-          potentialFriends.push(particles[i]);
-        }
-      };
+      friendFinder.needsFriend(this);
+      // // Filter out the particles who are 
+      // // not available or are being followed
+      // // and check if there are still free particles
+      // var potentialFriends = new Array(0);
+      // for (var i = particles.length - 1; i >= 0; i--) {
+      //   if (!(particles[i].isBefriended || particles[i].isFollowed || particles[i].isNotAvailable)){
+      //     potentialFriends.push(particles[i]);
+      //   }
+      // };
       
-      if (potentialFriends.length > 0){
-        var index = ( p.random(potentialFriends.length) | 0 );
-        this.nextFriend = potentialFriends[index];
-        this.nextFriend.isFollowed = true;
-        this.nextFriend.isDrifting = true;
-      }
+      // if (potentialFriends.length > 0){
+      //   var index = ( p.random(potentialFriends.length) | 0 );
+      //   this.nextFriend = potentialFriends[index];
+      //   this.nextFriend.isFollowed = true;
+      //   this.nextFriend.isDrifting = true;
     }
-
     return this;
   }
 
@@ -342,7 +343,63 @@ var s = function( p ) {
 
     return this;
   }
+  
+  // ========= POTENTIAL FRIEND FINDER =========
+  // To find new friends efficiently, we use one
+  // object that keeps track of all drifters who
+  // need a new target, so it can look in one
+  // pass instead of one per drifter. Also, it
+  // avoids creating new arrays every frame.
 
+  var FriendFinder = function () {
+    this.needsFriends = new Array(0);
+    this.nfLength = 0;
+    
+    this.potentialFriends = new Array(0);
+    this.pfLength = 0;
+  }
+  
+  FriendFinder.prototype.needsFriend = function (drifter) {
+    if (this.nfLength < this.needsFriends.length){
+      this.needsFriends[this.nfLength] = drifter;
+    } else {
+      this.needsFriends.push(drifter);
+    }
+    this.nfLength++;
+  }
+  
+  FriendFinder.prototype.findFriends = function (drifters) {
+    if (this.nfLength > 0){
+      // Generate list particles available as potential new friends
+      this.pfLength = 0;
+      for (var i = particles.length - 1 ; i >= 0; i--) {
+        var p = particles[i];
+        // Filter out the particles who are 
+        // not available or are being followed
+        if (!(p.isFollowed || p.isNotAvailable || p.isBefriended)){
+          if (this.pfLength < this.potentialFriends.length){
+            this.potentialFriends[this.pfLength] = p;
+          }
+          else {
+            this.potentialFriends.push(p);
+          }
+          this.pfLength++;
+        }
+      };
+    
+      if (this.pfLength > 0){
+        for (var i = Math.min(this.pfLength, this.nfLength)-1; i >= 0; i--){
+          this.needsFriends[i].nextFriend = this.potentialFriends[i];
+          this.potentialFriends[i].isFollowed = true;
+          this.potentialFriends[i].isDrifting = true;
+        };
+      }
+        
+      this.nfLength = 0; 
+    }
+  }
+  
+  
   // ========== SQUIGGLE ==========
   // Squiggle shape - used by drifter, refactored into separate class
 
