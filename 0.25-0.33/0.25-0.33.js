@@ -175,7 +175,9 @@ var s = function( p ) {
   };
 
   Drifter.prototype.draw = function() {
-    this.squiggle.draw(this.x + particleRadius, this.y - particleRadius);
+    var x = this.x + (this.x - cx) * 0.25; 
+    var y = this.y + (this.y - cy) * 0.25;
+    this.squiggle.draw(x, y);
     return this;
   };
 
