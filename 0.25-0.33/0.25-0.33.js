@@ -59,7 +59,7 @@ var s = function( p ) {
     cy = (p.height/2 | 0);
     cradius = (p.min(cx, cy)/2 | 0);
 
-    particleRadius = (p.min(p.width, p.height)/16 | 0);
+    particleRadius = (p.max( p.min(p.width, p.height)/16, 40) | 0);
 
     particles = new Array(20);
     for (var i = 0; i < particles.length; i++) {
@@ -71,7 +71,7 @@ var s = function( p ) {
 
     p5Asterisk = new Asterisk();
     p.imageMode(p.CENTER);
-    p.strokeWeight(8);
+    p.strokeWeight(particleRadius/8);
     
     userIcon = p.loadImage("assets/user.png");
     befriendIcon = p.loadImage("assets/befriended.png");
