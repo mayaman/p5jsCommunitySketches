@@ -167,6 +167,7 @@ var s = function( p ) {
       
       p.stroke(0);
       p.strokeWeight(2);
+      p.textSize(this.sH / 32);
       
       // To draw each "person"
       for (var i = 0; i < this.elementState.people.length; ++i) {
@@ -232,52 +233,96 @@ var s = function( p ) {
     this.elementState = {
       // Set of graphic buffers
       sketches : [],
-      nFramesToAddSketches : 10,
+      nFramesToAddSketches : 70,
       currSketch : 0
     };
     
     // Loading the sketches
-    var size = p.min(w / 4, h / 4);
+    var size = p.min(w / 3, h / 3);
+    
     var sketch1 = p.createGraphics(size, size);
+    sketch1.background("#FFFFFF");
+    sketch1.stroke(0);
+    sketch1.strokeWeight(5);
+    sketch1.point(size / 2, size / 2);
+    
+    this.elementState.sketches.push({sketch : sketch1, posX : w / 10,
+      posY : h / 10});
+    
+    sketch1 = p.createGraphics(size, size);
     sketch1.background("#8F8F8F");
     sketch1.stroke(0);
     sketch1.line(size / 10, size / 10, 9 * size / 10, 9 * size / 10);
     
     this.elementState.sketches.push({sketch : sketch1, posX : w / 10,
       posY : h / 10});
-    
-    var sketch2 = p.createGraphics(size, size);
-    sketch2.background("#FFFFFF");
-    sketch2.stroke(0);
-    sketch2.strokeWeight(2);
-    sketch2.blendMode(p.DIFFERENCE);
-    sketch2.fill("#0000FF");
-    sketch2.ellipse(0, 0, 2 * size, 2 * size);
-    sketch2.fill("#00FF00");
-    sketch2.ellipse(size, 0, 2 * size, 2 * size);
-    sketch2.fill("#FF0000");
-    sketch2.ellipse(size / 2, size, size, size);
-    
-    this.elementState.sketches.push({sketch : sketch2, posX : w / 3,
-      posY : h / 3});
       
-    var sketch3 = p.createGraphics(size, size);
-    sketch3.background(0);
-    sketch3.stroke(255);
-    sketch3.noFill();
-    sketch3.beginShape(p.TRIANGLE_STRIP);
+    sketch1 = p.createGraphics(size, size);
+    sketch1.background("#44AAFF");
+    sketch1.stroke("#771122");
+    sketch1.noFill();
+    sketch1.strokeWeight(2);
+    sketch1.quad(size / 10, size / 10, 9 * size / 10, size / 10, 9 * size / 10,
+      9 * size / 10, size / 10, 9 * size / 10);
+    sketch1.line(size / 6, size / 4, size / 6, size / 2);
+    sketch1.line((5 * size) / 6, size / 4, (5 * size) / 6, size / 2);
+    sketch1.curve(size / 4, size / 3, size / 3, size / 2, (2 * size) / 3, size / 2,  (3 * size) / 4, size / 3);
+    
+    this.elementState.sketches.push({sketch : sketch1, posX : w / 10,
+      posY : h / 10});
+      
+    sketch1 = p.createGraphics(size, size);
+    sketch1.background(0);
+    sketch1.stroke(255);
+    sketch1.noFill();
+    sketch1.beginShape(p.TRIANGLE_STRIP);
     
     for (var j = 0; j < 20; ++j) {
       
-      sketch3.vertex(p.random(0, size), p.random(0, size));
-      sketch3.vertex(p.random(0, size), p.random(0, size));
-      sketch3.vertex(p.random(0, size), p.random(0, size));
+      sketch1.vertex(p.random(0, size), p.random(0, size));
+      sketch1.vertex(p.random(0, size), p.random(0, size));
+      sketch1.vertex(p.random(0, size), p.random(0, size));
     }
     
-    sketch3.endShape();
+    sketch1.endShape();
     
-    this.elementState.sketches.push({sketch : sketch3, posX : w / 2,
-      posY : h / 2});
+    this.elementState.sketches.push({sketch : sketch1, posX : w / 10,
+      posY : h / 10});  
+    
+    sketch1 = p.createGraphics(size, size);
+    sketch1.background("#FFFFFF");
+    sketch1.stroke(0);
+    sketch1.strokeWeight(2);
+    sketch1.blendMode(p.DIFFERENCE);
+    sketch1.fill("#0000FF");
+    sketch1.ellipse(0, 0, 2 * size, 2 * size);
+    sketch1.fill("#00FF00");
+    sketch1.ellipse(size, 0, 2 * size, 2 * size);
+    sketch1.fill("#FF0000");
+    sketch1.ellipse(size / 2, size, size, size);
+    
+    this.elementState.sketches.push({sketch : sketch1, posX : w / 10,
+      posY : h / 10});
+    
+    sketch1 = p.createGraphics(size, size);
+    sketch1.background(0);
+    
+    var maxCol = p.constrain(size * size, 0, p.unhex("FFFFFF"));
+    var currCol = 0;
+    for (var k = 0; k < size; ++k) {
+      for (var l = 0; l < size; ++l) {
+        var col = p.color("#" + p.hex(currCol, 6));
+        sketch1.stroke(col);  
+        sketch1.point(k, l);
+        currCol = (currCol + 1) % maxCol;
+      }
+    }
+    
+    //img.updatePixels();
+    //sketch1.image(img, 0, 0);
+    
+    this.elementState.sketches.push({sketch : sketch1, posX : w / 10,
+      posY : h / 10})
     
     this.drawScene = function () {
       
@@ -301,7 +346,7 @@ var s = function( p ) {
     
     p.p5Logo = p.loadImage("../p5-asterisk.png");
     p.imageMode(p.CENTER);
-    p.textFont("times");
+    p.textFont("Times");
   };
 
   p.setup = function() {
