@@ -167,6 +167,7 @@ var s = function( p ) {
       
       p.stroke(0);
       p.strokeWeight(2);
+      p.textSize(this.sH / 32);
       
       // To draw each "person"
       for (var i = 0; i < this.elementState.people.length; ++i) {
@@ -232,7 +233,7 @@ var s = function( p ) {
     this.elementState = {
       // Set of graphic buffers
       sketches : [],
-      nFramesToAddSketches : 60,
+      nFramesToAddSketches : 70,
       currSketch : 0
     };
     
@@ -345,7 +346,7 @@ var s = function( p ) {
     
     p.p5Logo = p.loadImage("../p5-asterisk.png");
     p.imageMode(p.CENTER);
-    p.textFont("times");
+    p.textFont("Times");
   };
 
   p.setup = function() {
