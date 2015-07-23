@@ -233,7 +233,7 @@ var s = function( p ) {
     this.elementState = {
       // Set of graphic buffers
       sketches : [],
-      nFramesToAddSketches : 70,
+      nFramesToAddSketches : 60,
       currSketch : 0
     };
     
@@ -341,6 +341,52 @@ var s = function( p ) {
       }
     };
   };
+  
+  // Scene to draw bacground decoration
+  p.sceneFour = function (w, h) {
+    this.sW = w;
+    this.sH = h;
+    
+    this.elementState = {
+      MAX_BOXES : 40,
+      MAX_TEXT  : 10
+    };
+    
+    p.stroke(75);
+    p.noFill();
+    
+    this.drawScene = function () {
+    
+      // drawing random "plot boxes"
+      for (var i = 0; i < this.elementState.MAX_BOXES; ++i) {
+        
+        var points = [
+          p.random(w / 20, w),
+          p.random(h / 20, h),
+          p.random(0, w),
+          p.random(0, h)
+        ];
+        
+        p.line(points[2], points[3], points[0], points[3]);
+        p.line(points[0], points[3], points[0], points[1]);
+        p.line(points[0], points[1], points[2], points[1]);
+        p.line(points[2], points[1], points[2], points[3]);
+      }
+      
+      // Random text
+      p.textSize(this.sH / 32)
+      p.fill(75);
+      for (var j = 0; j < this.elementState.MAX_TEXT; ++j) {
+        
+        var points = [
+          p.random(0, w),
+          p.random(0, h)
+        ];
+        
+        p.text(p.char(p.floor(p.random(65, 90))), points[0], points[1]);
+      }
+    }
+  };
 
   p.preload = function () {
     
@@ -356,6 +402,7 @@ var s = function( p ) {
     p.background("#AFAFAF");
     
     // Adding scenes
+    p.scenes.push(new p.sceneFour(p.windowWidth, p.windowHeight));
     p.scenes.push(new p.sceneTwo(p.windowWidth, p.windowHeight));
     p.scenes.push(new p.sceneThree(p.windowWidth, p.windowHeight));
     p.scenes.push(new p.sceneOne(p.windowWidth, p.windowHeight));
@@ -367,6 +414,7 @@ var s = function( p ) {
     p.scenes[0].drawScene();
     p.scenes[1].drawScene();
     p.scenes[2].drawScene();
+    p.scenes[3].drawScene();
   };
 };
 
