@@ -1,5 +1,8 @@
 # // notes and thought flow
 
+## direction change from initial, UI draft 2015-july-25
+felt too distracting/jumpy changing views with the word changes, when testing on video; so went for something more organic connecting the words/ideas 
+
 ## video details
 
 duration: `05:33sec`
