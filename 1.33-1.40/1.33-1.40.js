@@ -130,17 +130,6 @@ var s = function( p ) {
       p.pop(); // wheel location pop
       
       // Draw random smoke pufs
-      var puf1X = p.random(rPosX, (rPosX + rW) / 2);
-      var puf1Y = p.random((rPosY + rH) / 2, rPosY + rH);
-      var puf2X = p.random((rPosX + rW) / 2, rPosX + rW);
-      var puf2Y = p.random((rPosY + rH) / 2, rPosY + rH);
-      
-      p.strokeWeight(1);
-      p.fill(255);
-      var puffD = p.random(15, 30);
-      var puff2D = p.random(15, 30);
-      p.ellipse(puf1X, puf1Y, puffD, puffD);
-      p.ellipse(puf2X, puf2Y, puff2D, puff2D);
       
       p.pop(); // robot shake pop
     };
@@ -155,7 +144,7 @@ var s = function( p ) {
     this.sH = h;
     
     this.elementState = {
-      MAX_PEOPLE : 45,
+      MAX_PEOPLE : 20,
       people : [],
       nFramesToAddPerson : 10,
       nFramesToAddText : 45,
@@ -203,12 +192,9 @@ var s = function( p ) {
         p.stroke(0);
       }
       
-      if (this.elementState.people.length > this.elementState.MAX_PEOPLE) {
-        this.elementState.people = [];
-      }
-      
       // After certain quantity of frames, add another person
-      if (p.frameCount % this.elementState.nFramesToAddPerson == 0) {
+      if (p.frameCount % this.elementState.nFramesToAddPerson == 0 &&
+	    this.elementState.people.length <= this.elementState.MAX_PEOPLE) {
       
         var gapValX = (((19 * this.sW) / 20) - ((3 * this.sW) / 4)) / 20;
         var gapValY = (((9 * this.sH) / 10) - ((this.sH) / 10)) / 20;
@@ -233,12 +219,12 @@ var s = function( p ) {
     this.elementState = {
       // Set of graphic buffers
       sketches : [],
-      nFramesToAddSketches : 60,
+      nFramesToAddSketches : 35,
       currSketch : 0
     };
     
     // Loading the sketches
-    var size = p.min(w / 3, h / 3);
+    var size = p.min(w / 4, h / 4);
     
     var sketch1 = p.createGraphics(size, size);
     sketch1.background("#FFFFFF");
@@ -277,7 +263,7 @@ var s = function( p ) {
     sketch1.noFill();
     sketch1.beginShape(p.TRIANGLE_STRIP);
     
-    for (var j = 0; j < 20; ++j) {
+    for (var j = 0; j < 10; ++j) {
       
       sketch1.vertex(p.random(0, size), p.random(0, size));
       sketch1.vertex(p.random(0, size), p.random(0, size));
@@ -287,8 +273,8 @@ var s = function( p ) {
     sketch1.endShape();
     
     this.elementState.sketches.push({sketch : sketch1, posX : w / 10,
-      posY : h / 10});  
-    
+      posY : h / 10});
+	
     sketch1 = p.createGraphics(size, size);
     sketch1.background("#FFFFFF");
     sketch1.stroke(0);
@@ -309,8 +295,8 @@ var s = function( p ) {
     
     var maxCol = p.constrain(size * size, 0, p.unhex("FFFFFF"));
     var currCol = 0;
-    for (var k = 0; k < size; ++k) {
-      for (var l = 0; l < size; ++l) {
+    for (var k = 0; k < size; k+=2) {
+      for (var l = 0; l < size; l+=2) {
         var col = p.color("#" + p.hex(currCol, 6));
         sketch1.stroke(col);  
         sketch1.point(k, l);
@@ -348,7 +334,7 @@ var s = function( p ) {
     this.sH = h;
     
     this.elementState = {
-      MAX_BOXES : 40,
+      MAX_BOXES : 10,
       MAX_TEXT  : 10
     };
     
@@ -375,7 +361,8 @@ var s = function( p ) {
       
       // Random text
       p.textSize(this.sH / 32)
-      p.fill(75);
+      p.fill(0);
+	  p.stroke(0);
       for (var j = 0; j < this.elementState.MAX_TEXT; ++j) {
         
         var points = [
@@ -390,16 +377,15 @@ var s = function( p ) {
 
   p.preload = function () {
     
-    p.p5Logo = p.loadImage("../p5-asterisk.png");
+    p.p5Logo = p.loadImage("assets/p5-asterisk.png");
     p.imageMode(p.CENTER);
     p.textFont("Times");
   };
 
   p.setup = function() {
     // put setup code here
-    p.frameRate(60);
+    p.frameRate(40);
     p.createCanvas(p.windowWidth, p.windowHeight);
-    p.background("#AFAFAF");
     
     // Adding scenes
     p.scenes.push(new p.sceneFour(p.windowWidth, p.windowHeight));
@@ -417,5 +403,3 @@ var s = function( p ) {
     p.scenes[3].drawScene();
   };
 };
-
-var myp5 = new p5(s);
