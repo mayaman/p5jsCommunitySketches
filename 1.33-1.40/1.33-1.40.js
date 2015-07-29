@@ -377,7 +377,7 @@ var s = function( p ) {
 
   p.preload = function () {
     
-    p.p5Logo = p.loadImage("../p5-asterisk.png");
+    p.p5Logo = p.loadImage("assets/p5-asterisk.png");
     p.imageMode(p.CENTER);
     p.textFont("Times");
   };
