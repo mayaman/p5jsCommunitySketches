@@ -7,7 +7,7 @@ var s = function( p ) {
 /////////////////
 
   var size = 15;
-  var padding = 3;
+  var padding = 2.5;
   
   var drawLine = function(x, y) {
     p.line(x+padding, y+padding, x+(size-padding*2)*p.sqrt(2), y+(size-padding*2)*p.sqrt(2));
