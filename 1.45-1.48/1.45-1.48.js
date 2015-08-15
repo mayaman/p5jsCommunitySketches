@@ -11,6 +11,7 @@ var s = function( p ) {
   var width = p.windowWidth;
   var height = p.windowHeight;
   var pixd = p.pixelDensity;
+  var text_show = true;
 
   // list of all p5 colors
   var p5colors = [ p.color(237, 34, 93),    // pink
@@ -106,6 +107,9 @@ var s = function( p ) {
 
     // get that pixel data
     p.loadPixels();
+    p.textFont("AvenirNextLTW01­Medium");
+    p.textSize(140);
+
     // layer.loadPixels();
 
     // layer.frameRate(100);
@@ -121,6 +125,10 @@ var s = function( p ) {
     for (var i = 0; i < asters.length; i++) {
         asters[i].drawAster();
     };
+
+    if (text_show) {
+      p.text("THE FUTURE", width/2-300, 100);
+    }
 
     // layer.updatePixels();
     // draw all the "squares"
@@ -144,11 +152,13 @@ var s = function( p ) {
   p.mouseClicked = function() {
     asters = [];
     p.setup();
+    text_show = false;
   };
 
   p.keyPressed = function() {
     asters = [];
     p.setup();
+    text_show = false;
   }
 };
 
