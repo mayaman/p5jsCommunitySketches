@@ -12,11 +12,10 @@ var s = function( p ) {
   var height = p.windowHeight;
 
   // list of all p5 colors
-  var p5colors = [ p.color(237, 34, 93),
-                   p.color(45, 123, 182),
-                   p.color(255, 255, 255),
-                   p.color(238, 153, 0),
-                   p.color(166, 127, 89) ];
+  var p5colors = [ p.color(237, 34, 93),    // pink
+                   p.color(45, 123, 182),   // blue
+                   p.color(255, 255, 255),  // white
+                   p.color(238, 153, 0) ]; // brown
 
   // list of astersisks
   var asters = [];
@@ -30,25 +29,6 @@ var s = function( p ) {
     p.line(x+padding-1, y+padding+1, x-1+((size-1)-padding*2)*p.sqrt(2), y+1+((size-1)-padding*2)*p.sqrt(2));
   }
 
-  // programmatically make an asterisk:
-  //    position (x, y),
-  //    weight,
-  //    color,
-  //    inital rotation,
-  //    speed
-  // var drawAster = function(x, y, w, c, b, s) {
-  //   p.noStroke();
-  //   p.push();
-  //   p.translate(x, y);
-  //   p.rotate(s*b);
-  //   for (var i = 0; i < 5; i++) {
-  //       p.fill(c);
-  //       p.rotate((-2.0*p.PI/5.0));
-  //       p.rect(0 - 23*w/2.0, 0, 23*w, 55*w);
-  //   };
-  //   p.pop();
-  // }
-
   // Aster class
   // x: x position
   // y: y position
@@ -56,12 +36,11 @@ var s = function( p ) {
   // c: color
   // b: initial rotation
   // s: speed
-  function Aster(x, y, w, c, b, s) {
+  function Aster(x, y, w, c, s) {
     this.x = x;
     this.y = y;
     this.w = w;
     this.c = c;
-    this.b = b;
     this.s = s;
   }
 
@@ -78,13 +57,27 @@ var s = function( p ) {
     p.pop();  
   };
 
-  var asss;
   p.setup = function() {
     // put setup code here
+
     p.createCanvas(p.windowWidth, p.windowHeight);
     p.background('#AFAFAF');
 
-    asss = new Aster(200, 350, 10.5, p.color(137, 34, 93), p.radians(delta), 1.5);
+    // always have big pink
+    var big_pink = new Aster(200, 350, 10.5, p.color(237, 34, 93), 0.5);
+    asters.push(big_pink);
+
+    // randoms~
+    var randx, randy, randw, randc, speed;
+    for (var i = 0; i < 4; i++) {
+        randx = p.random(100, width-100);
+        randy = p.random(100, height-100);
+        randw = p.random(2, 8);
+        randc = p5colors[Math.round(p.random(0, p5colors.length-1))];
+        speed = p.map(randw, 2, 8, 5, 0.5);
+        var randaster = new Aster(randx, randy, randw, randc, speed);
+        asters.push(randaster);
+    };
 
     // for (var i = 0; i < 2; i++) {
         // var aster = Aster(200, 350, 10.5, p.color(237, 34, 93), p.radians(delta), 0.5)
@@ -94,12 +87,16 @@ var s = function( p ) {
     // p.noLoop();
   };
 
-  var randx, randy, randw, randc, speed;
   p.draw = function() {
     p.background('#AFAFAF');
 
+    // always have the big pink
+    for (var i = 0; i < asters.length; i++) {
+        asters[i].drawAster();
+    };
+
     // console.log(asss);
-    asss.drawAster();
+    // asss.drawAster();
 
     // drawAster(400, 460, 4.5, p.color(90, 50, 200), p.radians(delta), 1.2);
     // drawAster(800, 700, 1.5, p.color(90, 50, 200), p.radians(delta), 2.5);
@@ -107,8 +104,6 @@ var s = function( p ) {
     // get a random color from the list of colors
     // randc = p5colors[Math.round(p.random(p5colors.length-1))];
     
-    // always have the big pink
-    // drawAster(200, 350, 10.5, p.color(237, 34, 93), p.radians(delta), 0.5);
     // make random asters
     // for (var i = 0; i < 6; i++) {
     //     randx = p.random(100, width-100);
