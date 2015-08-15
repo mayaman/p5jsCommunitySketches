@@ -1,12 +1,16 @@
 var s = function( p ) {
 
+  // aBe's sketch for p5.js welcome video
+  // @hamoid @fun_pro
+  // 05.08.2015
+
   p.setup = function() {
     p.createCanvas(p.windowWidth, p.windowHeight);
     p.colorMode(p.RGB, 255);
     p.background('#2D7BB6');
  
     // create new people
-    for(var i=0; i<20; i++) {
+    for(var i=0; i<ctrb.count; i++) {
       ctrb.people.push(new ctrb.person(p, i));
     }
 
@@ -17,28 +21,33 @@ var s = function( p ) {
   // var t; // milliseconds
 
   p.draw = function() {
-    p.colorMode(p.RGB, 255);
-    p.background('#2D7BB6');
-    p.fill(255);
-    p.noStroke();
+    var person, ray;
 
+    if(ctrb.startTime < 0) {
+      ctrb.startTime = p.millis();
+    } else {
+      // show last 7 seconds
+      var t = (p.millis() - ctrb.startTime) / 7000;
 
-    var t = p.millis() / 7000;
+      if (t < 1) {
+        p.colorMode(p.RGB, 255);
+        p.background('#2D7BB6');
+        p.fill(255);
+        p.noStroke();
 
-    if (t < 1) {
-      // draw people
-      for(var i in ctrb.people) {
-        var person = ctrb.people[i];
-        person.update(t);
-        person.paint();
-      }
-      for(var i in ctrb.rays) {
-        var ray = ctrb.rays[i];
-        ray.update(t);
-        ray.paint();
+        // draw people
+        for(var i in ctrb.people) {
+          person = ctrb.people[i];
+          person.update(t);
+          person.paint();
+        }
+        for(var i in ctrb.rays) {
+          ray = ctrb.rays[i];
+          ray.update(t);
+          ray.paint();
+        }
       }
     }
-
   };
 };
 

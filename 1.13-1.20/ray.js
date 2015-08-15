@@ -1,24 +1,22 @@
+// aBe's sketch for p5.js welcome video
+// @hamoid @fun_pro
+// 05.08.2015
+
 ctrb.ray = function(p, x0, y0) {
+
   this.p = p;
   this.t = 0;
 
   this.x0 = x0;
   this.y0 = y0;
+  this.angle = Math.PI + Math.PI / 2.5 * Math.floor(ctrb.rays.length);
+  this.escapeSpeed = 0.3 + 0.8 * Math.random();
 
   var x, y, c, n = 0, found = false;
-  
-  while(!found) {
-    x = Math.random();
-    y = 1 - ((++n + p.frameCount) % 200) / 200;
-    c = ctrb.asterisk.get(Math.floor(x * ctrb.asterisk.width), Math.floor(y * ctrb.asterisk.height));
-    if(c[3] > 100) {
-      p.noStroke();
-      p.fill(237, 34, 93);
-      this.x1 = p.map(x, 0, 1, p.windowWidth * 0.7, p.windowWidth * 0.7 + p.windowHeight * 0.7);
-      this.y1 = p.map(y, 0, 1, 0, p.windowHeight * 0.7);
-      found = true;
-    }
-  }
+ 
+  // initial target position
+  this.x1 = p.width * 0.76;
+  this.y1 = p.height * 0.25;
 
   this.cx = this.x1;
   this.cy = this.y1;
@@ -56,20 +54,23 @@ ctrb.ray.prototype.update = function(t) {
     if(this.colorFade < 1) {
       this.colorFade += 0.05;
     }
+    this.cx += Math.sin(this.angle) * this.escapeSpeed;
+    this.cy += Math.cos(this.angle) * this.escapeSpeed;
   }
   this.rot += this.rotd;
 }
 ctrb.ray.prototype.paint = function() {
 
-  this.p.stroke(255, this.lineColor);
-  this.p.noFill();
-  this.p.beginShape();
-  for(var i=0; i<this.linePoints.length; i++) {
-    this.p.vertex(this.linePoints[i][0], this.linePoints[i][1]);  
-  }
-  this.p.endShape();
   if(this.lineColor > 0) {
-    this.lineColor -= 5; 
+    this.p.stroke(255, this.lineColor);
+    this.p.strokeWeight(2);
+    this.p.noFill();
+    this.p.beginShape();
+    for(var i=0; i<this.linePoints.length; i++) {
+      this.p.vertex(this.linePoints[i][0], this.linePoints[i][1]);  
+    }
+    this.p.endShape();
+    this.lineColor -= 10; 
   }
   
   this.p.noStroke();

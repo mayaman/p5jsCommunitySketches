@@ -1,18 +1,27 @@
 
-ctrb = {};
+// aBe's sketch for p5.js welcome video
+// @hamoid @fun_pro
+// 05.08.2015
 
-ctrb.people = [];
-ctrb.rays = [];
-ctrb.asterisk;
+ctrb = {
+  count: 20,
+  people: [],
+  rays: [],
+  asterisk: 0,
+  startTime: -1
+};
 
 ctrb.person = function(p, idx) {
+  var rad = 200;
+  var a = idx / ctrb.count * 2 * Math.PI;
+
   this.p = p;
   
-  this.x0 = p.windowWidth * p.random(1.0, 1.1);
-  this.y0 = p.windowHeight * p.map(idx, 0, 20, 0.2, 0.4);
+  this.x0 = p.width * p.random(1.3, 1.5);
+  this.y0 = p.height * p.map(idx, 0, ctrb.count, 0.2, 0.4);
 
-  this.x1 = p.windowWidth * p.random(0.10, 0.3);
-  this.y1 = this.y0;
+  this.x1 = p.width * 0.2 + rad * Math.cos(a);
+  this.y1 = p.height * 0.3 + rad * Math.sin(a);
 
   this.cx = this.x0;
   this.cy = this.y0;
@@ -21,7 +30,7 @@ ctrb.person = function(p, idx) {
   this.jumpHeight = p.random(20, 80);
 
   this.tStart = 0.1 * Math.random();
-  this.tDur = 0.1 + 0.3 * Math.random() * Math.random();
+  this.tDur = 0.1 + 0.15 * Math.random() * Math.random();
 
   this.rot = p.random(p.TWO_PI);
 
@@ -67,11 +76,17 @@ ctrb.person.prototype.update = function(t) {
     if(sin < 0.2) {
       this.rot -= 0.15;
     }
-  } else if(t > this.tStart + this.tDur && t > this.nextLaunch && t < 0.7) {
+  } else {
+    this.rot += 0.001; 
+  }
+  if(this.nextLaunch == 0) {
+    this.nextLaunch = t + 0.3 + Math.random() * 0.15;
+  }
+  if(t > this.tStart + this.tDur && t > this.nextLaunch /*&& t < 0.7*/) {
     if(this.nextLaunch > 0) {
       ctrb.rays.push(new ctrb.ray(this.p, this.cx, this.cy));
     } 
-    this.nextLaunch = t + 0.05 + this.p.random() * 0.15;
+    this.nextLaunch = t + 0.1 + Math.random() * 0.15;
   }
 }
 
