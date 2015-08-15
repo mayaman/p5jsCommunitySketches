@@ -10,6 +10,7 @@ var s = function( p ) {
   var padding = 2.5;
   var width = p.windowWidth;
   var height = p.windowHeight;
+  var pixd = p.pixelDensity;
 
   // list of all p5 colors
   var p5colors = [ p.color(237, 34, 93),    // pink
@@ -19,6 +20,9 @@ var s = function( p ) {
 
   // list of astersisks
   var asters = [];
+
+  // sampling layer
+  var layer;
 
   var drawLine = function(x, y) {
     p.line(x+padding, y+padding, x+(size-padding*2)*p.sqrt(2), y+(size-padding*2)*p.sqrt(2));
@@ -44,7 +48,9 @@ var s = function( p ) {
     this.s = s;
   }
 
+  // function to draw asterisks onto canvas
   Aster.prototype.drawAster = function() {
+    // console.log(layer);
     p.noStroke();
     p.push();
     p.translate(this.x, this.y);
@@ -57,69 +63,94 @@ var s = function( p ) {
     p.pop();  
   };
 
+  // function to draw asterisks (onto the layer)
+  // todo: implement this later ~
+  Aster.prototype.drawAsterOnLayer = function() {
+    // console.log(layer);
+    layer.noStroke();
+    layer.push();
+    layer.translate(this.x, this.y);
+    layer.rotate(this.s * p.radians(delta));
+    for (var i = 0; i < 5; i++) {
+        layer.fill(this.c);
+        layer.rotate((-2.0*p.PI/5.0));
+        layer.rect(0 - 23*this.w/2.0, 0, 23*this.w, 55*this.w);
+    };
+    layer.pop();  
+  };
+
   p.setup = function() {
     // put setup code here
 
     p.createCanvas(p.windowWidth, p.windowHeight);
     p.background('#AFAFAF');
 
+    layer = p.createGraphics(p.windowWidth, p.windowHeight);
+
     // always have big pink
     var big_pink = new Aster(200, 350, 10.5, p.color(237, 34, 93), 0.5);
     asters.push(big_pink);
 
-    // randoms~
+    // generate randoms~
     var randx, randy, randw, randc, speed;
     for (var i = 0; i < 4; i++) {
         randx = p.random(100, width-100);
         randy = p.random(100, height-100);
         randw = p.random(2, 8);
         randc = p5colors[Math.round(p.random(0, p5colors.length-1))];
-        speed = p.map(randw, 2, 8, 5, 0.5);
+        speed = p.map(randw, 2, 8, 4, 0.5);
         var randaster = new Aster(randx, randy, randw, randc, speed);
+        // push new randoms
         asters.push(randaster);
     };
 
-    // for (var i = 0; i < 2; i++) {
-        // var aster = Aster(200, 350, 10.5, p.color(237, 34, 93), p.radians(delta), 0.5)
-        // asters.push()
-    // };
-    // layer = p.createGraphics();
-    // p.noLoop();
+    // get that pixel data
+    p.loadPixels();
+    // layer.loadPixels();
+
+    // layer.frameRate(100);
+    // p.frameRate(100);
+
   };
 
   p.draw = function() {
     p.background('#AFAFAF');
+    layer.background('#AFAFAF');
 
-    // always have the big pink
+    // draw random asters onto the layer
     for (var i = 0; i < asters.length; i++) {
         asters[i].drawAster();
     };
 
-    // console.log(asss);
-    // asss.drawAster();
+    // layer.updatePixels();
+    // draw all the "squares"
+    // var layerc;
+    // for (var i = 0; i < width + size; i+=size) {
+    //     for (var j = 0; j < height + size; j+=size) {
 
-    // drawAster(400, 460, 4.5, p.color(90, 50, 200), p.radians(delta), 1.2);
-    // drawAster(800, 700, 1.5, p.color(90, 50, 200), p.radians(delta), 2.5);
+    //     }
+    // }
 
-    // get a random color from the list of colors
-    // randc = p5colors[Math.round(p.random(p5colors.length-1))];
-    
-    // make random asters
-    // for (var i = 0; i < 6; i++) {
-    //     randx = p.random(100, width-100);
-    //     randy = p.random(100, height-100);
-    //     randw = p.random(2, 8);
-    //     randc = p5colors[p.random(0, p5colors.length-1)];
-    //     speed = p.map(randw, 2, 8, 5, 0.5);
-
-    //     randc = p.color(166, 127, 89);
-    //     // drawAster(randx, randy, randw, randc, p.radians(delta), speed);
-    // };
+    // console.log(layer.get(100, 100));
+    // layer.rect(10, 10, 100, 100);
+    // layer.fill(200);
+    // p.image(layer, 0, 0);
 
     // rotation delta
     delta++;
 
   };
+
+  p.mouseClicked = function() {
+    asters = [];
+    p.setup();
+  };
+
+  p.keyPressed = function() {
+    asters = [];
+    p.setup();
+  }
 };
+
 
 var myp5 = new p5(s);
