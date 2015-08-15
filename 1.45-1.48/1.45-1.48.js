@@ -8,9 +8,10 @@ var s = function( p ) {
 
   var size = 15;
   var padding = 2.5;
-  var padding = 3;
-  var asterisk;
-  
+  var width = p.windowWidth;
+  var height = p.windowHeight;
+  var weight = 2;
+
   var drawLine = function(x, y) {
     p.line(x+padding, y+padding, x+(size-padding*2)*p.sqrt(2), y+(size-padding*2)*p.sqrt(2));
   }
@@ -20,8 +21,21 @@ var s = function( p ) {
     p.line(x+padding-1, y+padding+1, x-1+((size-1)-padding*2)*p.sqrt(2), y+1+((size-1)-padding*2)*p.sqrt(2));
   }
 
+  // programmatically make an asterisk: position (x, y), weight, and color
+  var drawAster = function(x, y, w, c) {
+    p.noStroke();
+    p.push();
+    p.translate(x, y);
+    for (var i = 0; i < 5; i++) {
+        p.fill(c);
+        p.rotate(-2.0*p.PI/5.0);
+        p.rect(0 - 23*w/2.0, 0, 23*w, 55*w);
+    };
+    p.pop();
+  }
+
   p.preload = function() {
-    asterisk = p.loadImage('assets/p5-asterisk.png');
+    // aster = p.loadImage('assets/p5-xsmall-aster.png');
   }
 
   p.setup = function() {
@@ -29,75 +43,41 @@ var s = function( p ) {
     p.createCanvas(p.windowWidth, p.windowHeight);
     p.background('#AFAFAF');
 
-    // p.image(asterisk, 0, 0, p.windowWidth, p.windowHeight);
-    // asterisk.loadPixels();
-
-    p.loadPixels();
+    // layer = p.createGraphics();
     // p.noLoop();
-
   };
 
   p.draw = function() {
-    var width = p.windowWidth;
-    var height = p.windowHeight;
+    // p.push();
+    //     p.noStroke();
 
-    // size of square
-    // padding amount
+    //     p.rotate(-2.0*p.PI/5.0);
+    //     p.fill(0, 245, 0);
+    //     p.rect(0 - 23*weight/2.0, 0, 23*weight, 55*weight);
 
-    // p.fill(255,0,0)
-    // p.noStroke()
-    // p.rect(100, 100, size, size);
-    // p.fill(0,0,255);
-    // p.rect(100 + 3, 100 + 3, size - 6, size - 6);
-    p.strokeWeight(1);
-    p.stroke(133);
+    //     p.rotate(-2.0*p.PI/5.0);
+    //     p.fill(0, 245, 0);
+    //     p.rect(0 - 23*weight/2.0, 0, 23*weight, 55*weight);
 
-    p.background('#AFAFAF');
+    //     p.rotate(-2.0*p.PI/5.0);
+    //     p.fill(0, 245, 0);
+    //     p.rect(0 - 23*weight/2.0, 0, 23*weight, 55*weight);
 
+    //     p.rotate(-2.0*p.PI/5.0);
+    //     p.fill(0, 245, 0);
+    //     p.rect(0 - 23*weight/2.0, 0, 23*weight, 55*weight);
 
-    // draw all the "squares"
-    for (var i = 0; i < width + size; i+=size) {
-        for (var j = 0; j < height + size; j+=size) {
+    //     p.rotate(-2.0*p.PI/5.0);
+    //     p.fill(0, 245, 0);
+    //     p.rect(0 - 23*weight/2.0, 0, 23*weight, 55*weight);
+    // p.pop();
 
-            if (i <= p.mouseX && i+size > p.mouseX) {
-                p.stroke(237, 34, 93);   
-                drawCrosshatch(i, j);
-            } else {
-                p.stroke(255);   
-                drawLine(i, j);
-            }
+    drawAster(100, 100, 1, p.color(200, 0, 100));
+    drawAster(400, 400, 1.5, p.color(90, 50, 200));
 
-            // drawLine(i, j);
-
-
-
-            // c = asterisk.get(i, j);
-            // console.log("color is", c);
-            // if (c[0] == 237) {
-            //     p.stroke(237, 34, 93);
-            //     drawCrosshatch(i, j);
-            // } else {
-            //     p.stroke(255);
-            //     drawLine(i, j);
-            // }
-
-            // // p.fill('#AFAFAF');
-            // p.fill(p.random(255),p.random(255),p.random(255));
-            
-            // p.line(i+padding+1, j+padding-1, i+1+((size-1)-padding*2)*p.sqrt(2), j-1+((size-1)-padding*2)*p.sqrt(2));
-            // p.stroke(238, 153, 0);
-            // p.stroke(237, 34, 93);
-            // p.line(i+padding-1, j+padding+1, i-1+((size-1)-padding*2)*p.sqrt(2), j+1+((size-1)-padding*2)*p.sqrt(2));
-
-            // var pick = p.round(p.random(0, 1));
-            // console.log(pick);
-
-            // p.line(i+padding, j+padding, i+(size-padding*2)*p.sqrt(2), j+(size-padding*2)*p.sqrt(2));
-            // p.rect(i, j, size, size);
-            // p.point(i+3, j+3);
-            // p.line(j+3, i+3, 10, 10);
-        };
-    };
+    // layer.image(aster, 0, 0, 100, 100);
+    // p.image(aster, 0, 0, 100, 100);
+    // p.ellipse(100, 100, 230, 230);
 
   };
 };
